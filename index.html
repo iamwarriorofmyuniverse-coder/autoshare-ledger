@@ -26,7 +26,7 @@
             overflow-x: hidden;
         }
 
-        /* 1:1 EXACT OG STAT CARDS (Matched to image 2) */
+        /* 1:1 EXACT OG STAT CARDS */
         .og-stat-card {
             border-radius: 18px;
             padding: 16px 20px;
@@ -199,16 +199,25 @@
             white-space: nowrap;
         }
 
-        /* Non-Selected Rows: Vibrant Emerald Green text */
-        table.og-table tr.normal-row td {
-            color: #34d399;
-            background: #070b13;
+        /* AVAILABLE ROWS: Dark Forest Green Background with Emerald Green Text */
+        table.og-table tr.row-available td {
+            background-color: #0d2818 !important;
+            color: #34d399 !important;
         }
-        table.og-table tr.normal-row:hover td {
-            background: #0f1c33;
+        table.og-table tr.row-available:hover td {
+            background-color: #143d25 !important;
         }
 
-        /* Selected Row: Solid Electric Blue Highlight */
+        /* RENTED ROWS: Dark Crimson Red Background with Vibrant Rose/Red Text */
+        table.og-table tr.row-rented td {
+            background-color: #2a1215 !important;
+            color: #fb7185 !important;
+        }
+        table.og-table tr.row-rented:hover td {
+            background-color: #3d1b1f !important;
+        }
+
+        /* SELECTED ROW (Overrides Both Available & Rented with Solid Electric Blue Highlight) */
         table.og-table tr.selected-row td {
             background-color: #2563eb !important;
             color: #ffffff !important;
@@ -234,9 +243,10 @@
             background-color: #10b981;
             border: 1px solid #34d399;
         }
-        .status-circle-amber {
-            background-color: #f59e0b;
-            border: 1px solid #fbbf24;
+        .status-circle-red {
+            background-color: #e11d48;
+            border: 1px solid #fb7185;
+            box-shadow: 0 0 6px rgba(225, 29, 72, 0.8);
         }
 
         /* Scrollbars */
@@ -265,7 +275,7 @@
             </div>
         </div>
 
-        <!-- 2. FOUR EXACT MATCH STAT CARDS (Large left disc, label on top, big number below) -->
+        <!-- 2. FOUR EXACT MATCH STAT CARDS -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <!-- TOTAL FLEET -->
             <div class="og-stat-card card-blue">
@@ -468,7 +478,7 @@
             <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-key text-emerald-400"></i> Check Out Vehicle
             </h3>
-            <p class="text-xs text-slate-400 mb-4">Database Trigger <code class="text-emerald-400 font-mono">trg_after_booking_insert</code> will automatically flip vehicle status to <b class="text-amber-400">Rented</b>.</p>
+            <p class="text-xs text-slate-400 mb-4">Database Trigger <code class="text-emerald-400 font-mono">trg_after_booking_insert</code> will automatically flip vehicle status to <b class="text-rose-400">Rented</b> (Row turns Crimson Red).</p>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Vehicle Number (Primary Key)</label>
@@ -683,10 +693,11 @@
         function selectVehicleRow(vNum) {
             selectedVehicleNumber = vNum;
             document.querySelectorAll('#fleet-tbody tr').forEach(r => {
+                const isRented = r.getAttribute('data-status') === 'Rented';
                 if (r.getAttribute('data-veh') === vNum) {
                     r.className = 'selected-row cursor-pointer transition';
                 } else {
-                    r.className = 'normal-row cursor-pointer transition';
+                    r.className = (isRented ? 'row-rented' : 'row-available') + ' cursor-pointer transition';
                 }
             });
         }
@@ -710,21 +721,23 @@
 
             res[0].values.forEach(row => {
                 const [num, model, type, rate, status, fuel] = row;
-                const isAvail = status === 'Available';
+                const isAvail = (status === 'Available');
+
                 const statusDot = isAvail
                     ? `<span class="status-circle status-circle-green"></span>Available`
-                    : `<span class="status-circle status-circle-amber"></span>Rented`;
+                    : `<span class="status-circle status-circle-red"></span>Rented`;
 
                 const quickAction = isAvail
                     ? `<span class="quick-action-text flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Rent</span>`
                     : `<span class="quick-action-text flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Return</span>`;
 
-                const isSelected = selectedVehicleNumber === num;
-                const rowClass = isSelected ? 'selected-row' : 'normal-row';
+                const isSelected = (selectedVehicleNumber === num);
+                const baseClass = isAvail ? 'row-available' : 'row-rented';
+                const rowClass = isSelected ? 'selected-row' : baseClass;
 
                 tbody.innerHTML += `
-                    <tr data-veh="${num}" class="${rowClass} cursor-pointer transition" onclick="selectVehicleRow('${num}')" ondblclick="handleRowDblClick('${num}', '${status}')">
-                        <td class="font-mono">${num}</td>
+                    <tr data-veh="${num}" data-status="${status}" class="${rowClass} cursor-pointer transition" onclick="selectVehicleRow('${num}')" ondblclick="handleRowDblClick('${num}', '${status}')">
+                        <td class="font-mono font-bold">${num}</td>
                         <td>${model}</td>
                         <td>${type}</td>
                         <td>₹${Number(rate).toFixed(2)}</td>
@@ -753,13 +766,13 @@
             res[0].values.forEach(row => {
                 const [id, name, dl, phone, activeCount] = row;
                 const countBadge = activeCount > 0
-                    ? `<span class="px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">${activeCount} Active</span>`
+                    ? `<span class="px-2 py-0.5 rounded text-xs bg-rose-500/20 text-rose-400 font-bold border border-rose-500/30">${activeCount} Active</span>`
                     : `<span class="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-400">0 Active</span>`;
 
                 const delBtn = `<button onclick="deleteCustomer(${id})" class="og-btn og-btn-rose text-[11px]"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
 
                 tbody.innerHTML += `
-                    <tr class="normal-row">
+                    <tr class="row-available">
                         <td class="font-mono">#${id}</td>
                         <td class="text-white font-semibold">${name}</td>
                         <td class="font-mono">${dl}</td>
@@ -787,20 +800,22 @@
 
             res[0].values.forEach(row => {
                 const [id, vNum, cName, rDate, retDate, fuel, penalty, total, status] = row;
-                const statusBadge = status === 'Active'
-                    ? `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">Active</span>`
+                const isRented = (status === 'Active');
+                const rowClass = isRented ? 'row-rented' : 'row-available';
+                const statusBadge = isRented
+                    ? `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-rose-500/20 text-rose-400 border border-rose-500/30">Active</span>`
                     : `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Completed</span>`;
 
                 tbody.innerHTML += `
-                    <tr class="normal-row">
+                    <tr class="${rowClass}">
                         <td class="font-mono font-bold">#${id}</td>
-                        <td class="font-mono text-white font-bold">${vNum}</td>
-                        <td class="text-slate-200">${cName}</td>
+                        <td class="font-mono font-bold">${vNum}</td>
+                        <td>${cName}</td>
                         <td class="text-xs">${rDate}</td>
                         <td class="text-xs">${retDate || '--'}</td>
                         <td class="font-mono">${fuel !== null ? Number(fuel).toFixed(1) + '%' : '--'}</td>
                         <td class="text-amber-400 font-mono">₹${Number(penalty).toFixed(2)}</td>
-                        <td class="text-emerald-400 font-mono font-bold">₹${Number(total).toFixed(2)}</td>
+                        <td class="font-mono font-bold">₹${Number(total).toFixed(2)}</td>
                         <td>${statusBadge}</td>
                     </tr>
                 `;
@@ -810,7 +825,6 @@
         // DOUBLE CLICK & ACTION HANDLERS
         function handleRowDblClick(vNum, status) {
             selectedVehicleNumber = vNum;
-            selectVehicleRow(vNum);
             if (status === 'Available') {
                 startCheckout(vNum);
             } else {
@@ -825,7 +839,7 @@
             }
             const res = db.exec(`SELECT Status FROM Vehicles WHERE Vehicle_Number = '${selectedVehicleNumber}'`);
             if (res[0].values[0][0] !== 'Available') {
-                alert(`Vehicle ${selectedVehicleNumber} is already rented out.`);
+                alert(`Vehicle ${selectedVehicleNumber} is already rented out (Red row). Double click it to Return.`);
                 return;
             }
             startCheckout(selectedVehicleNumber);
@@ -838,7 +852,7 @@
             }
             const res = db.exec(`SELECT Status FROM Vehicles WHERE Vehicle_Number = '${selectedVehicleNumber}'`);
             if (res[0].values[0][0] !== 'Rented') {
-                alert(`Vehicle ${selectedVehicleNumber} is already available.`);
+                alert(`Vehicle ${selectedVehicleNumber} is already Available (Green row). Double click it to Check Out.`);
                 return;
             }
             startReturn(selectedVehicleNumber);
@@ -879,11 +893,13 @@
                 VALUES ('${vNum}', ${custId}, '${today}', ${dailyRate}, 'Active');
             `);
 
+            // TRIGGER: Automatically switch Vehicle Status to 'Rented'
             db.run(`UPDATE Vehicles SET Status = 'Rented' WHERE Vehicle_Number = '${vNum}';`);
 
             closeModal('modal-checkout');
+            // Select next available or keep selection to view red status
+            selectedVehicleNumber = null; // Unselect so the red row color is immediately visible
             renderAll();
-            selectVehicleRow(vNum);
         }
 
         function startReturn(vNum) {
@@ -919,6 +935,7 @@
             const totalAmount = dailyRate + penaltyFee;
             const today = new Date().toISOString().split('T')[0];
 
+            // STORED PROCEDURE: ReturnVehicle
             db.run(`
                 UPDATE Rentals
                 SET Return_Date = '${today}',
@@ -936,8 +953,8 @@
             `);
 
             closeModal('modal-return');
+            selectedVehicleNumber = null; // Unselect so the green row color is immediately visible
             renderAll();
-            selectVehicleRow(vNum);
         }
 
         function deleteVehicle(vNum) {

@@ -26,114 +26,70 @@
             overflow-x: hidden;
         }
 
-        /* 1:1 BUBBLE GLASS NEUMORPHIC STAT CARDS */
-        .bubble-card {
-            border-radius: 16px;
-            padding: 16px 18px;
-            min-height: 98px;
+        /* 1:1 EXACT OG STAT CARDS (Matched to image 2) */
+        .og-stat-card {
+            border-radius: 18px;
+            padding: 16px 20px;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            background: #0d1527;
             position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease;
         }
-        .bubble-card:hover {
+        .og-stat-card:hover {
             transform: translateY(-2px);
         }
 
-        /* Top Gloss Reflection / Bubble Sheen */
-        .bubble-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 48%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
-            border-top-left-radius: 14px;
-            border-top-right-radius: 14px;
-            pointer-events: none;
+        /* Card Outer Glow & Borders */
+        .card-blue {
+            border: 2px solid #2563eb;
+            box-shadow: 0 0 18px rgba(37, 99, 235, 0.45);
+        }
+        .card-emerald {
+            border: 2px solid #059669;
+            box-shadow: 0 0 18px rgba(5, 150, 105, 0.45);
+        }
+        .card-rose {
+            border: 2px solid #e11d48;
+            box-shadow: 0 0 18px rgba(225, 29, 72, 0.45);
+        }
+        .card-amber {
+            border: 2px solid #d97706;
+            box-shadow: 0 0 18px rgba(217, 119, 6, 0.45);
         }
 
-        /* Blue Bubble Card */
-        .bubble-card-blue {
-            background: radial-gradient(circle at 50% 0%, #172c4e 0%, #0d1728 100%);
-            border: 1.5px solid #2563eb;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(37, 99, 235, 0.35);
-        }
-        .bubble-disc-blue {
-            width: 30px;
-            height: 30px;
+        /* Large Centered Circular Discs with Soft Halo */
+        .og-disc {
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            background: #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #0d1728;
-            font-size: 13px;
+            color: #ffffff;
+            font-size: 20px;
             flex-shrink: 0;
         }
-
-        /* Emerald Bubble Card */
-        .bubble-card-emerald {
-            background: radial-gradient(circle at 50% 0%, #103630 0%, #091a18 100%);
-            border: 1.5px solid #059669;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(5, 150, 105, 0.35);
+        .disc-blue {
+            background: #2563eb;
+            border: 1.5px solid #60a5fa;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
         }
-        .bubble-disc-emerald {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #34d399;
-            box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #091a18;
-            font-size: 13px;
-            flex-shrink: 0;
+        .disc-emerald {
+            background: #059669;
+            border: 1.5px solid #34d399;
+            box-shadow: 0 0 14px rgba(52, 211, 153, 0.6);
         }
-
-        /* Rose Bubble Card */
-        .bubble-card-rose {
-            background: radial-gradient(circle at 50% 0%, #3d1425 0%, #1e0912 100%);
-            border: 1.5px solid #e11d48;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(225, 29, 72, 0.35);
+        .disc-rose {
+            background: #e11d48;
+            border: 1.5px solid #fb7185;
+            box-shadow: 0 0 14px rgba(251, 113, 133, 0.6);
         }
-        .bubble-disc-rose {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #fb7185;
-            box-shadow: 0 0 10px rgba(251, 113, 133, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1e0912;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-
-        /* Amber Bubble Card */
-        .bubble-card-amber {
-            background: radial-gradient(circle at 50% 0%, #38250d 0%, #1c1205 100%);
-            border: 1.5px solid #d97706;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(217, 119, 6, 0.35);
-        }
-        .bubble-disc-amber {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #fbbf24;
-            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1c1205;
-            font-size: 13px;
-            flex-shrink: 0;
+        .disc-amber {
+            background: #d97706;
+            border: 1.5px solid #fbbf24;
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.6);
         }
 
         /* 1:1 Capsule Tab Bar */
@@ -175,60 +131,45 @@
             gap: 6px;
             transition: all 0.15s ease;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
-        .og-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
-            border-top-left-radius: 18px;
-            border-top-right-radius: 18px;
-            pointer-events: none;
-        }
-
         .og-btn-green {
-            background: linear-gradient(135deg, #092821, #0d3b31);
+            background: #08241e;
             border: 1.5px solid #059669;
             color: #34d399;
             box-shadow: 0 0 12px rgba(5, 150, 105, 0.3);
         }
-        .og-btn-green:hover { background: #134e42; color: #6ee7b7; }
+        .og-btn-green:hover { background: #0c362d; color: #6ee7b7; }
 
         .og-btn-blue {
-            background: linear-gradient(135deg, #0b1f42, #112d5e);
+            background: #0a1b38;
             border: 1.5px solid #2563eb;
             color: #60a5fa;
             box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
         }
-        .og-btn-blue:hover { background: #173b7a; color: #93c5fd; }
+        .og-btn-blue:hover { background: #122b59; color: #93c5fd; }
 
         .og-btn-purple {
-            background: linear-gradient(135deg, #241040, #361761);
+            background: #200f38;
             border: 1.5px solid #7c3aed;
             color: #c084fc;
             box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
         }
-        .og-btn-purple:hover { background: #4a1f85; color: #e9d5ff; }
+        .og-btn-purple:hover { background: #321657; color: #e9d5ff; }
 
         .og-btn-rose {
-            background: linear-gradient(135deg, #330d1c, #4d132a);
+            background: #2e0d19;
             border: 1.5px solid #e11d48;
             color: #fb7185;
             box-shadow: 0 0 12px rgba(225, 29, 72, 0.3);
         }
-        .og-btn-rose:hover { background: #661a37; color: #fecdd3; }
+        .og-btn-rose:hover { background: #471427; color: #fecdd3; }
 
         .og-btn-slate {
-            background: linear-gradient(135deg, #131c30, #1b2742);
+            background: #111a2e;
             border: 1.5px solid #475569;
             color: #cbd5e1;
         }
-        .og-btn-slate:hover { background: #26375c; color: #ffffff; }
+        .og-btn-slate:hover { background: #1c2a47; color: #ffffff; }
 
         /* 1:1 Table Rectangle */
         .og-table-wrapper {
@@ -324,50 +265,50 @@
             </div>
         </div>
 
-        <!-- 2. FOUR BUBBLE GLASS NEUMORPHIC CARDS (Exact Match to Desktop Canvas) -->
+        <!-- 2. FOUR EXACT MATCH STAT CARDS (Large left disc, label on top, big number below) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <!-- TOTAL FLEET -->
-            <div class="bubble-card bubble-card-blue">
-                <div class="flex items-center gap-2.5">
-                    <div class="bubble-disc-blue">
-                        <i class="fa-solid fa-car"></i>
-                    </div>
-                    <span class="text-[#e0f2fe] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</span>
+            <div class="og-stat-card card-blue">
+                <div class="og-disc disc-blue">
+                    <i class="fa-solid fa-car"></i>
                 </div>
-                <div id="stat-total" class="text-3xl font-bold text-white mt-2">7</div>
+                <div>
+                    <div class="text-[#38bdf8] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</div>
+                    <div id="stat-total" class="text-3xl font-bold text-white leading-tight mt-0.5">7</div>
+                </div>
             </div>
 
             <!-- AVAILABLE -->
-            <div class="bubble-card bubble-card-emerald">
-                <div class="flex items-center gap-2.5">
-                    <div class="bubble-disc-emerald">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                    <span class="text-[#d1fae5] text-xs font-bold tracking-wider uppercase">AVAILABLE</span>
+            <div class="og-stat-card card-emerald">
+                <div class="og-disc disc-emerald">
+                    <i class="fa-solid fa-circle-check"></i>
                 </div>
-                <div id="stat-avail" class="text-3xl font-bold text-white mt-2">7</div>
+                <div>
+                    <div class="text-[#34d399] text-xs font-bold tracking-wider uppercase">AVAILABLE</div>
+                    <div id="stat-avail" class="text-3xl font-bold text-white leading-tight mt-0.5">7</div>
+                </div>
             </div>
 
             <!-- RENTED OUT -->
-            <div class="bubble-card bubble-card-rose">
-                <div class="flex items-center gap-2.5">
-                    <div class="bubble-disc-rose">
-                        <i class="fa-solid fa-key"></i>
-                    </div>
-                    <span class="text-[#ffe4e6] text-xs font-bold tracking-wider uppercase">RENTED OUT</span>
+            <div class="og-stat-card card-rose">
+                <div class="og-disc disc-rose">
+                    <i class="fa-solid fa-key"></i>
                 </div>
-                <div id="stat-rented" class="text-3xl font-bold text-white mt-2">0</div>
+                <div>
+                    <div class="text-[#fb7185] text-xs font-bold tracking-wider uppercase">RENTED OUT</div>
+                    <div id="stat-rented" class="text-3xl font-bold text-white leading-tight mt-0.5">0</div>
+                </div>
             </div>
 
             <!-- TOTAL REVENUE -->
-            <div class="bubble-card bubble-card-amber">
-                <div class="flex items-center gap-2.5">
-                    <div class="bubble-disc-amber">
-                        <i class="fa-solid fa-indian-rupee-sign"></i>
-                    </div>
-                    <span class="text-[#fef3c7] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</span>
+            <div class="og-stat-card card-amber">
+                <div class="og-disc disc-amber">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
                 </div>
-                <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white mt-2">₹30,900.00</div>
+                <div>
+                    <div class="text-[#fbbf24] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</div>
+                    <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white leading-tight mt-0.5">₹30,900.00</div>
+                </div>
             </div>
         </div>
 

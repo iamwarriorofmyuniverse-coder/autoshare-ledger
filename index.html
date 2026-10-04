@@ -12,7 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
     <style>
-        /* Exact Colors & Geometry from Desktop Neumorphic Canvas */
         :root {
             --bg-window: #070b13;
         }
@@ -27,101 +26,113 @@
             overflow-x: hidden;
         }
 
-        /* 1:1 NEON RECTANGLES (Stat Cards) */
-        .neon-card {
-            border-radius: 20px;
-            padding: 14px 20px;
+        /* 1:1 BUBBLE GLASS NEUMORPHIC STAT CARDS */
+        .bubble-card {
+            border-radius: 16px;
+            padding: 16px 18px;
+            min-height: 98px;
             display: flex;
-            align-items: center;
-            gap: 16px;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
+            overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .neon-card:hover {
+        .bubble-card:hover {
             transform: translateY(-2px);
         }
 
-        /* Blue Rectangle */
-        .neon-card-blue {
-            background: linear-gradient(145deg, #0e1d35 0%, #091322 100%);
-            border: 2px solid #2563eb;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4), inset 0 0 15px rgba(56, 189, 248, 0.15);
+        /* Top Gloss Reflection / Bubble Sheen */
+        .bubble-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-top-left-radius: 14px;
+            border-top-right-radius: 14px;
+            pointer-events: none;
         }
-        .neon-disc-blue {
-            width: 48px;
-            height: 48px;
+
+        /* Blue Bubble Card */
+        .bubble-card-blue {
+            background: radial-gradient(circle at 50% 0%, #172c4e 0%, #0d1728 100%);
+            border: 1.5px solid #2563eb;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(37, 99, 235, 0.35);
+        }
+        .bubble-disc-blue {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1d4ed8, #2563eb);
-            border: 1.5px solid #60a5fa;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+            background: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 18px;
+            color: #0d1728;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
-        /* Emerald Rectangle */
-        .neon-card-emerald {
-            background: linear-gradient(145deg, #0d2822 0%, #071714 100%);
-            border: 2px solid #059669;
-            box-shadow: 0 0 20px rgba(5, 150, 105, 0.4), inset 0 0 15px rgba(52, 211, 153, 0.15);
+        /* Emerald Bubble Card */
+        .bubble-card-emerald {
+            background: radial-gradient(circle at 50% 0%, #103630 0%, #091a18 100%);
+            border: 1.5px solid #059669;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(5, 150, 105, 0.35);
         }
-        .neon-disc-emerald {
-            width: 48px;
-            height: 48px;
+        .bubble-disc-emerald {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #047857, #059669);
-            border: 1.5px solid #34d399;
-            box-shadow: 0 0 12px rgba(52, 211, 153, 0.5);
+            background: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 18px;
+            color: #091a18;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
-        /* Rose Rectangle */
-        .neon-card-rose {
-            background: linear-gradient(145deg, #2c0f1c 0%, #17070e 100%);
-            border: 2px solid #e11d48;
-            box-shadow: 0 0 20px rgba(225, 29, 72, 0.4), inset 0 0 15px rgba(251, 113, 133, 0.15);
+        /* Rose Bubble Card */
+        .bubble-card-rose {
+            background: radial-gradient(circle at 50% 0%, #3d1425 0%, #1e0912 100%);
+            border: 1.5px solid #e11d48;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(225, 29, 72, 0.35);
         }
-        .neon-disc-rose {
-            width: 48px;
-            height: 48px;
+        .bubble-disc-rose {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #be123c, #e11d48);
-            border: 1.5px solid #fb7185;
-            box-shadow: 0 0 12px rgba(251, 113, 133, 0.5);
+            background: #fb7185;
+            box-shadow: 0 0 10px rgba(251, 113, 133, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 18px;
+            color: #1e0912;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
-        /* Amber Rectangle */
-        .neon-card-amber {
-            background: linear-gradient(145deg, #2b1d0b 0%, #170f05 100%);
-            border: 2px solid #d97706;
-            box-shadow: 0 0 20px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.15);
+        /* Amber Bubble Card */
+        .bubble-card-amber {
+            background: radial-gradient(circle at 50% 0%, #38250d 0%, #1c1205 100%);
+            border: 1.5px solid #d97706;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1.5px 2px rgba(255, 255, 255, 0.3), 0 0 18px rgba(217, 119, 6, 0.35);
         }
-        .neon-disc-amber {
-            width: 48px;
-            height: 48px;
+        .bubble-disc-amber {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #b45309, #d97706);
-            border: 1.5px solid #fbbf24;
-            box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+            background: #fbbf24;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 18px;
+            color: #1c1205;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
@@ -164,7 +175,22 @@
             gap: 6px;
             transition: all 0.15s ease;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
+        .og-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            pointer-events: none;
+        }
+
         .og-btn-green {
             background: linear-gradient(135deg, #092821, #0d3b31);
             border: 1.5px solid #059669;
@@ -298,50 +324,50 @@
             </div>
         </div>
 
-        <!-- 2. FOUR GLOWING NEON RECTANGLES (Matched to Desktop Canvas) -->
+        <!-- 2. FOUR BUBBLE GLASS NEUMORPHIC CARDS (Exact Match to Desktop Canvas) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- TOTAL FLEET RECTANGLE -->
-            <div class="neon-card neon-card-blue">
-                <div class="neon-disc-blue">
-                    <i class="fa-solid fa-car"></i>
+            <!-- TOTAL FLEET -->
+            <div class="bubble-card bubble-card-blue">
+                <div class="flex items-center gap-2.5">
+                    <div class="bubble-disc-blue">
+                        <i class="fa-solid fa-car"></i>
+                    </div>
+                    <span class="text-[#e0f2fe] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</span>
                 </div>
-                <div>
-                    <div class="text-[#93c5fd] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</div>
-                    <div id="stat-total" class="text-3xl font-bold text-white mt-0.5">7</div>
-                </div>
+                <div id="stat-total" class="text-3xl font-bold text-white mt-2">7</div>
             </div>
 
-            <!-- AVAILABLE RECTANGLE -->
-            <div class="neon-card neon-card-emerald">
-                <div class="neon-disc-emerald">
-                    <i class="fa-solid fa-circle-check"></i>
+            <!-- AVAILABLE -->
+            <div class="bubble-card bubble-card-emerald">
+                <div class="flex items-center gap-2.5">
+                    <div class="bubble-disc-emerald">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <span class="text-[#d1fae5] text-xs font-bold tracking-wider uppercase">AVAILABLE</span>
                 </div>
-                <div>
-                    <div class="text-[#6ee7b7] text-xs font-bold tracking-wider uppercase">AVAILABLE</div>
-                    <div id="stat-avail" class="text-3xl font-bold text-white mt-0.5">7</div>
-                </div>
+                <div id="stat-avail" class="text-3xl font-bold text-white mt-2">7</div>
             </div>
 
-            <!-- RENTED OUT RECTANGLE -->
-            <div class="neon-card neon-card-rose">
-                <div class="neon-disc-rose">
-                    <i class="fa-solid fa-key"></i>
+            <!-- RENTED OUT -->
+            <div class="bubble-card bubble-card-rose">
+                <div class="flex items-center gap-2.5">
+                    <div class="bubble-disc-rose">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <span class="text-[#ffe4e6] text-xs font-bold tracking-wider uppercase">RENTED OUT</span>
                 </div>
-                <div>
-                    <div class="text-[#fda4af] text-xs font-bold tracking-wider uppercase">RENTED OUT</div>
-                    <div id="stat-rented" class="text-3xl font-bold text-white mt-0.5">0</div>
-                </div>
+                <div id="stat-rented" class="text-3xl font-bold text-white mt-2">0</div>
             </div>
 
-            <!-- TOTAL REVENUE RECTANGLE -->
-            <div class="neon-card neon-card-amber">
-                <div class="neon-disc-amber">
-                    <i class="fa-solid fa-indian-rupee-sign"></i>
+            <!-- TOTAL REVENUE -->
+            <div class="bubble-card bubble-card-amber">
+                <div class="flex items-center gap-2.5">
+                    <div class="bubble-disc-amber">
+                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                    </div>
+                    <span class="text-[#fef3c7] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</span>
                 </div>
-                <div>
-                    <div class="text-[#fde68a] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</div>
-                    <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white mt-0.5">₹30,900.00</div>
-                </div>
+                <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white mt-2">₹30,900.00</div>
             </div>
         </div>
 

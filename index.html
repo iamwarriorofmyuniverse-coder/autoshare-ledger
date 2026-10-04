@@ -3,144 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoShare Ledger - Vehicle Rental & Bike-Share Database System</title>
-    <!-- Tailwind CSS CDN -->
+    <title>AutoShare Ledger - Car Rental & Bike-Share Database Ledger</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- sql.js (SQLite WebAssembly for in-browser relational DB execution) -->
+    <!-- SQLite WebAssembly Engine (sql.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-        .glass-panel { background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; }
-        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-        /* Custom scrollbars */
+        /* Exact OG Obsidian Palette */
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #141c2e;
+            --bg-inner: #0d1322;
+            --border-card: #232f48;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        /* 1:1 Glowing Stat Cards */
+        .card-blue {
+            background: #13233c;
+            border: 1px solid #2563eb;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.25), inset 0 0 10px rgba(56, 189, 248, 0.1);
+        }
+        .card-emerald {
+            background: #112a28;
+            border: 1px solid #059669;
+            box-shadow: 0 0 15px rgba(5, 150, 105, 0.25), inset 0 0 10px rgba(52, 211, 153, 0.1);
+        }
+        .card-rose {
+            background: #2e1520;
+            border: 1px solid #e11d48;
+            box-shadow: 0 0 15px rgba(225, 29, 72, 0.25), inset 0 0 10px rgba(251, 113, 133, 0.1);
+        }
+        .card-amber {
+            background: #2b2112;
+            border: 1px solid #d97706;
+            box-shadow: 0 0 15px rgba(217, 119, 6, 0.25), inset 0 0 10px rgba(251, 191, 36, 0.1);
+        }
+
+        /* Tab Segmented Capsule */
+        .tab-capsule {
+            background: #141c2e;
+            border: 1px solid #232f48;
+            border-radius: 9999px;
+            padding: 4px;
+        }
+        .tab-btn {
+            border-radius: 9999px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: #94a3b8;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #ffffff;
+            border: 1px solid #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+        }
+
+        /* Action Buttons with OG Glowing Borders */
+        .btn-checkout {
+            background: #0f2d26;
+            border: 1px solid #059669;
+            color: #34d399;
+            box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
+        }
+        .btn-checkout:hover { background: #134e42; }
+
+        .btn-return {
+            background: #172554;
+            border: 1px solid #2563eb;
+            color: #60a5fa;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
+        }
+        .btn-return:hover { background: #1e3a8a; }
+
+        .btn-add {
+            background: #2e1065;
+            border: 1px solid #7c3aed;
+            color: #c084fc;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+        }
+        .btn-add:hover { background: #3b0764; }
+
+        .btn-delete {
+            background: #3f121e;
+            border: 1px solid #e11d48;
+            color: #fb7185;
+            box-shadow: 0 0 10px rgba(225, 29, 72, 0.2);
+        }
+        .btn-delete:hover { background: #4c0519; }
+
+        .btn-refresh {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #cbd5e1;
+        }
+        .btn-refresh:hover { background: #334155; }
+
+        /* Table Selected Row Styling (Vivid Blue Glow) */
+        tr.selected-row {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+        }
+        tr.selected-row td {
+            color: #ffffff !important;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #232f48; border-radius: 3px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col p-4 md:p-6 lg:p-8">
+<body class="min-h-screen p-4 md:p-6 lg:p-8 flex flex-col justify-between">
 
-    <!-- TOP HEADER & BRANDING -->
-    <header class="max-w-7xl w-full mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
-        <div>
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-900/30">
+    <div class="max-w-7xl w-full mx-auto flex-1 flex flex-col gap-5">
+
+        <!-- 1. HEADER (Exact match to OG) -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#38bdf8] flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-[#38bdf8]"></i> AutoShare Ledger
+                </h1>
+                <p class="text-slate-400 text-xs mt-0.5 font-normal">
+                    High-Contrast Obsidian UI &bull; Car Rental & Bike-Share Database Ledger
+                </p>
+            </div>
+            <div class="flex items-center gap-2 bg-[#112a28] border border-[#059669] text-[#34d399] px-4 py-1.5 rounded-full text-xs font-semibold shadow-[0_0_10px_rgba(5,150,105,0.3)]">
+                <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
+                System Active & Ready
+            </div>
+        </header>
+
+        <!-- 2. GLOWING STAT CARDS (4 Columns) -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- TOTAL FLEET -->
+            <div class="card-blue rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <div class="text-[#93c5fd] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</div>
+                    <div id="stat-total" class="text-3xl font-bold text-white mt-1">7</div>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-blue-500/20 text-[#38bdf8] flex items-center justify-center text-xl border border-blue-400/30">
                     <i class="fa-solid fa-car-side"></i>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                        AutoShare Ledger
-                        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-normal">SQLite WASM v3.45</span>
-                    </h1>
-                    <p class="text-slate-400 text-xs mt-0.5">Automated Check-out Triggers, Fuel Audit Stored Procedures & Relational Safety Guards</p>
-                </div>
             </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="resetDatabase()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
-                <i class="fa-solid fa-rotate-left"></i> Reset Demo DB
-            </button>
-            <div class="flex items-center gap-2 bg-emerald-950/40 border border-emerald-800/40 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-mono">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                In-Memory DB Active
-            </div>
-        </div>
-    </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-7xl w-full mx-auto flex-1 flex flex-col gap-6">
-
-        <!-- KPI STATS OVERVIEW -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="glass-panel p-4 flex items-center justify-between">
+            <!-- AVAILABLE -->
+            <div class="card-emerald rounded-xl p-4 flex items-center justify-between">
                 <div>
-                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Fleet</div>
-                    <div id="stat-total" class="text-2xl font-bold text-white mt-1">--</div>
+                    <div class="text-[#6ee7b7] text-xs font-bold tracking-wider uppercase">AVAILABLE</div>
+                    <div id="stat-avail" class="text-3xl font-bold text-white mt-1">7</div>
                 </div>
-                <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-car"></i>
-                </div>
-            </div>
-            <div class="glass-panel p-4 flex items-center justify-between">
-                <div>
-                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Available</div>
-                    <div id="stat-avail" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
-                </div>
-                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-[#34d399] flex items-center justify-center text-xl border border-emerald-400/30">
                     <i class="fa-solid fa-circle-check"></i>
                 </div>
             </div>
-            <div class="glass-panel p-4 flex items-center justify-between">
+
+            <!-- RENTED OUT -->
+            <div class="card-rose rounded-xl p-4 flex items-center justify-between">
                 <div>
-                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Rentals</div>
-                    <div id="stat-rented" class="text-2xl font-bold text-amber-400 mt-1">--</div>
+                    <div class="text-[#fda4af] text-xs font-bold tracking-wider uppercase">RENTED OUT</div>
+                    <div id="stat-rented" class="text-3xl font-bold text-white mt-1">0</div>
                 </div>
-                <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+                <div class="w-11 h-11 rounded-xl bg-rose-500/20 text-[#fb7185] flex items-center justify-center text-xl border border-rose-400/30">
                     <i class="fa-solid fa-key"></i>
                 </div>
             </div>
-            <div class="glass-panel p-4 flex items-center justify-between">
+
+            <!-- TOTAL REVENUE -->
+            <div class="card-amber rounded-xl p-4 flex items-center justify-between">
                 <div>
-                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Revenue</div>
-                    <div id="stat-revenue" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
+                    <div class="text-[#fde68a] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</div>
+                    <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white mt-1">₹30,900.00</div>
                 </div>
-                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-[#fbbf24] flex items-center justify-center text-xl border border-amber-400/30">
                     <i class="fa-solid fa-indian-rupee-sign"></i>
                 </div>
             </div>
         </section>
 
-        <!-- ACTION CONTROLS & NAVIGATION TABS -->
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-            <div class="flex items-center gap-2">
-                <button onclick="switchTab('fleet')" id="tab-fleet" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white">
-                    <i class="fa-solid fa-car mr-1.5"></i> Fleet Registry
+        <!-- 3. SEGMENTED TABS (OG Style) -->
+        <div class="flex items-center">
+            <div class="tab-capsule flex items-center gap-1">
+                <button onclick="switchTab('fleet')" id="tab-fleet" class="tab-btn active">
+                    <i class="fa-solid fa-car mr-1.5"></i> Fleet Status
                 </button>
-                <button onclick="switchTab('customers')" id="tab-customers" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
-                    <i class="fa-solid fa-users mr-1.5"></i> Customers
-                </button>
-                <button onclick="switchTab('ledger')" id="tab-ledger" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn">
                     <i class="fa-solid fa-receipt mr-1.5"></i> Rental Ledger
                 </button>
-                <button onclick="switchTab('sql')" id="tab-sql" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
-                    <i class="fa-solid fa-terminal mr-1.5"></i> SQL Console
+                <button onclick="switchTab('customers')" id="tab-customers" class="tab-btn">
+                    <i class="fa-solid fa-user mr-1.5"></i> Customers
                 </button>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="openModal('modal-add-veh')" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-plus text-emerald-400"></i> Add Vehicle
-                </button>
-                <button onclick="openModal('modal-add-cust')" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-plus text-blue-400"></i> Add Customer
+                <button onclick="switchTab('sql')" id="tab-sql" class="tab-btn">
+                    <i class="fa-solid fa-graduation-cap mr-1.5"></i> SQL Inspector
                 </button>
             </div>
         </div>
 
-        <!-- TAB CONTENT: FLEET REGISTRY -->
-        <section id="content-fleet" class="tab-pane flex flex-col gap-4">
-            <div class="glass-panel overflow-hidden">
-                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
-                    <div>
-                        <h2 class="text-base font-bold text-white">Vehicle Fleet Management</h2>
-                        <p class="text-xs text-slate-400">Registration numbers, rates, fuel levels, and real-time availability</p>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-mono tracking-wider border-b border-slate-800">
+        <!-- 4. FILTER & ACTION TOOLBAR (Exact match to OG) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-[#141c2e] p-3 rounded-xl border border-[#232f48]">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-300">Filter Status:</span>
+                <select id="filter-status" onchange="renderFleet()" class="bg-[#0d1322] border border-[#232f48] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <option value="All">All</option>
+                    <option value="Available">Available</option>
+                    <option value="Rented">Rented</option>
+                </select>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="handleCheckOutClick()" class="btn-checkout px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-key"></i> Check Out (Rent)
+                </button>
+                <button onclick="handleReturnClick()" class="btn-return px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Return (Procedure)
+                </button>
+                <button onclick="openModal('modal-add-veh')" class="btn-add px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> Add Vehicle
+                </button>
+                <button onclick="handleDeleteVehicleClick()" class="btn-delete px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Delete Vehicle
+                </button>
+                <button onclick="renderAll()" class="btn-refresh px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- 5. MAIN CONTENT PANELS -->
+
+        <!-- TAB 1: FLEET STATUS (OG Table Layout) -->
+        <section id="content-fleet" class="tab-pane flex flex-col">
+            <div class="bg-[#0d1322] border border-[#232f48] rounded-xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto max-h-[480px]">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-[#141c2e] text-slate-300 font-semibold border-b border-[#232f48] sticky top-0">
                             <tr>
-                                <th class="py-3 px-4">Vehicle Number</th>
+                                <th class="py-3 px-4">Vehicle No (Primary Key)</th>
                                 <th class="py-3 px-4">Model Name</th>
                                 <th class="py-3 px-4">Type</th>
-                                <th class="py-3 px-4">Daily Rate</th>
-                                <th class="py-3 px-4">Fuel %</th>
-                                <th class="py-3 px-4">Status</th>
-                                <th class="py-3 px-4 text-right">Actions</th>
+                                <th class="py-3 px-4">Daily Rate (₹)</th>
+                                <th class="py-3 px-4">Current Fuel</th>
+                                <th class="py-3 px-4">Availability Status</th>
+                                <th class="py-3 px-4">Quick Action</th>
                             </tr>
                         </thead>
-                        <tbody id="fleet-tbody" class="divide-y divide-slate-800 font-medium">
+                        <tbody id="fleet-tbody" class="divide-y divide-[#1e293b] font-normal">
                             <!-- Injected by JS -->
                         </tbody>
                     </table>
@@ -148,28 +268,53 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: CUSTOMERS -->
-        <section id="content-customers" class="tab-pane hidden flex flex-col gap-4">
-            <div class="glass-panel overflow-hidden">
-                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
-                    <div>
-                        <h2 class="text-base font-bold text-white">Registered Customer Directory</h2>
-                        <p class="text-xs text-slate-400">Verification details, driving licenses, and contact records</p>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-mono tracking-wider border-b border-slate-800">
+        <!-- TAB 2: RENTAL LEDGER -->
+        <section id="content-ledger" class="tab-pane hidden flex flex-col">
+            <div class="bg-[#0d1322] border border-[#232f48] rounded-xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto max-h-[480px]">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-[#141c2e] text-slate-300 font-semibold border-b border-[#232f48] sticky top-0">
                             <tr>
-                                <th class="py-3 px-4">ID</th>
+                                <th class="py-3 px-4">Rental ID</th>
+                                <th class="py-3 px-4">Vehicle No</th>
+                                <th class="py-3 px-4">Customer Name</th>
+                                <th class="py-3 px-4">Rental Date</th>
+                                <th class="py-3 px-4">Return Date</th>
+                                <th class="py-3 px-4">Return Fuel</th>
+                                <th class="py-3 px-4">Penalty Fee</th>
+                                <th class="py-3 px-4">Total Amount</th>
+                                <th class="py-3 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-tbody" class="divide-y divide-[#1e293b] font-normal">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: CUSTOMERS -->
+        <section id="content-customers" class="tab-pane hidden flex flex-col gap-3">
+            <div class="flex justify-end">
+                <button onclick="openModal('modal-add-cust')" class="btn-add px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus"></i> Add Customer
+                </button>
+            </div>
+            <div class="bg-[#0d1322] border border-[#232f48] rounded-xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto max-h-[480px]">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-[#141c2e] text-slate-300 font-semibold border-b border-[#232f48] sticky top-0">
+                            <tr>
+                                <th class="py-3 px-4">Customer ID</th>
                                 <th class="py-3 px-4">Full Name</th>
-                                <th class="py-3 px-4">Driving License No.</th>
+                                <th class="py-3 px-4">Driving License No</th>
                                 <th class="py-3 px-4">Phone Number</th>
                                 <th class="py-3 px-4">Active Rentals</th>
                                 <th class="py-3 px-4 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="cust-tbody" class="divide-y divide-slate-800 font-medium">
+                        <tbody id="cust-tbody" class="divide-y divide-[#1e293b] font-normal">
                             <!-- Injected by JS -->
                         </tbody>
                     </table>
@@ -177,191 +322,163 @@
             </div>
         </section>
 
-        <!-- TAB CONTENT: RENTAL LEDGER -->
-        <section id="content-ledger" class="tab-pane hidden flex flex-col gap-4">
-            <div class="glass-panel overflow-hidden">
-                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
-                    <div>
-                        <h2 class="text-base font-bold text-white">Rental Transaction Audit Ledger</h2>
-                        <p class="text-xs text-slate-400">Triggered checkout timestamps, return fuel audits, and penalty calculations</p>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-mono tracking-wider border-b border-slate-800">
-                            <tr>
-                                <th class="py-3 px-4">Rental ID</th>
-                                <th class="py-3 px-4">Vehicle</th>
-                                <th class="py-3 px-4">Customer</th>
-                                <th class="py-3 px-4">Rental Date</th>
-                                <th class="py-3 px-4">Return Date</th>
-                                <th class="py-3 px-4">Return Fuel %</th>
-                                <th class="py-3 px-4">Penalty</th>
-                                <th class="py-3 px-4">Total Amount</th>
-                                <th class="py-3 px-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledger-tbody" class="divide-y divide-slate-800 font-medium">
-                            <!-- Injected by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB CONTENT: SQL CONSOLE -->
+        <!-- TAB 4: SQL INSPECTOR -->
         <section id="content-sql" class="tab-pane hidden flex flex-col gap-4">
-            <div class="glass-panel p-5">
+            <div class="bg-[#141c2e] border border-[#232f48] rounded-xl p-5 shadow-xl">
                 <div class="flex justify-between items-center mb-3">
                     <div>
-                        <h2 class="text-base font-bold text-white">Interactive SQLite Query Console</h2>
-                        <p class="text-xs text-slate-400">Run queries directly against the in-browser WebAssembly database</p>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-blue-400"></i> SQL Inspector Console
+                        </h2>
+                        <p class="text-xs text-slate-400">Run queries directly against the in-memory SQLite database</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Vehicles</button>
-                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Customers</button>
-                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Rentals</button>
+                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2.5 py-1 text-xs bg-[#0d1322] hover:bg-[#1e293b] text-slate-300 rounded border border-[#232f48]">Vehicles</button>
+                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2.5 py-1 text-xs bg-[#0d1322] hover:bg-[#1e293b] text-slate-300 rounded border border-[#232f48]">Customers</button>
+                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2.5 py-1 text-xs bg-[#0d1322] hover:bg-[#1e293b] text-slate-300 rounded border border-[#232f48]">Rentals</button>
                     </div>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <textarea id="sql-input" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm mono text-emerald-400 focus:outline-none focus:border-emerald-500" placeholder="Enter SQL Query (e.g. SELECT * FROM Vehicles WHERE Status = 'Available';)"></textarea>
+                    <textarea id="sql-input" rows="3" class="w-full bg-[#0d1322] border border-[#232f48] rounded-lg p-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-blue-500" placeholder="Enter SQL Query (e.g. SELECT * FROM Vehicles WHERE Status = 'Available';)"></textarea>
                     <div class="flex justify-between items-center">
-                        <span id="sql-msg" class="text-xs text-slate-400 mono">Ready</span>
-                        <button onclick="executeSQL()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-play"></i> Execute SQL
+                        <span id="sql-msg" class="text-xs text-slate-400 font-mono">Ready</span>
+                        <button onclick="executeSQL()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(37,99,235,0.3)]">
+                            <i class="fa-solid fa-play"></i> Execute Query
                         </button>
                     </div>
                 </div>
-                <div id="sql-results-container" class="mt-4 border border-slate-800 rounded-lg overflow-x-auto max-h-80 hidden">
+                <div id="sql-results-container" class="mt-4 border border-[#232f48] rounded-lg overflow-x-auto max-h-80 hidden">
                     <table class="w-full text-left text-xs font-mono" id="sql-results-table"></table>
                 </div>
             </div>
         </section>
 
-    </main>
+    </div>
 
-    <!-- FOOTER -->
-    <footer class="max-w-7xl w-full mx-auto mt-8 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
-        AutoShare Ledger &bull; DBMS Laboratory Project &bull; Anna University Regulation 2023
-    </footer>
-
-    <!-- MODAL: CHECK-OUT (DEMONSTRATES DATABASE TRIGGER) -->
-    <div id="modal-checkout" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 relative">
-            <h3 class="text-lg font-bold text-white mb-1">Check Out Vehicle</h3>
-            <p class="text-xs text-slate-400 mb-4">Trigger <code class="text-emerald-400">trg_after_booking_insert</code> will automatically flip vehicle status to <b class="text-amber-400">Rented</b>.</p>
+    <!-- MODAL: CHECK-OUT -->
+    <div id="modal-checkout" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#141c2e] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-key text-emerald-400"></i> Check Out Vehicle
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Database Trigger <code class="text-emerald-400 font-mono">trg_after_booking_insert</code> will automatically flip vehicle status to <b class="text-amber-400">Rented</b>.</p>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
-                    <input type="text" id="co-veh-num" readonly class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-sm text-slate-400 mono mt-1">
+                    <input type="text" id="co-veh-num" readonly class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-slate-300 font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Select Customer</label>
-                    <select id="co-cust-select" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1"></select>
+                    <select id="co-cust-select" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1"></select>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-checkout')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
-                    <button onclick="confirmCheckout()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs">Confirm Booking</button>
+                    <button onclick="closeModal('modal-checkout')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
+                    <button onclick="confirmCheckout()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs shadow-[0_0_10px_rgba(16,185,129,0.3)]">Confirm Booking</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: RETURN (DEMONSTRATES STORED PROCEDURE & PENALTY) -->
-    <div id="modal-return" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 relative">
-            <h3 class="text-lg font-bold text-white mb-1">Return Vehicle & Fuel Audit</h3>
-            <p class="text-xs text-slate-400 mb-4">Stored Procedure <code class="text-emerald-400">ReturnVehicle</code> checks fuel level & assesses ₹500 penalty if fuel &lt; 20%.</p>
+    <!-- MODAL: RETURN & FUEL AUDIT -->
+    <div id="modal-return" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#141c2e] border border-[#059669] rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-rotate-left text-blue-400"></i> Return Vehicle & Fuel Audit
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Stored Procedure <code class="text-emerald-400 font-mono">ReturnVehicle</code> audits fuel & assesses ₹500 penalty if fuel &lt; 20%.</p>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
-                    <input type="text" id="ret-veh-num" readonly class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-sm text-slate-400 mono mt-1">
+                    <input type="text" id="ret-veh-num" readonly class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-slate-300 font-mono mt-1">
                 </div>
                 <div>
                     <div class="flex justify-between items-center">
                         <label class="text-xs font-semibold text-slate-300">Returned Fuel Level (%)</label>
-                        <span id="fuel-val" class="text-xs font-bold text-emerald-400 font-mono">15%</span>
+                        <span id="fuel-val" class="text-xs font-bold text-rose-400 font-mono">13.8%</span>
                     </div>
-                    <input type="range" id="ret-fuel-slider" min="0" max="100" value="15" oninput="updateFuelLabel(this.value)" class="w-full accent-emerald-500 mt-2">
+                    <input type="range" id="ret-fuel-slider" min="0" max="100" value="13.8" step="0.5" oninput="updateFuelLabel(this.value)" class="w-full accent-emerald-500 mt-2">
                     <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-                        <span class="text-red-400 font-semibold">&lt; 20% (+ ₹500 Penalty)</span>
-                        <span class="text-emerald-400">&ge; 20% (Standard)</span>
+                        <span class="text-rose-400 font-semibold">&lt; 20% (+ ₹500 Penalty Surcharge)</span>
+                        <span class="text-emerald-400">&ge; 20% (Standard Return)</span>
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-return')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
-                    <button onclick="confirmReturn()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs">Complete Return</button>
+                    <button onclick="closeModal('modal-return')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
+                    <button onclick="confirmReturn()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs shadow-[0_0_10px_rgba(37,99,235,0.3)]">Complete Return</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- MODAL: ADD VEHICLE -->
-    <div id="modal-add-veh" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 relative">
-            <h3 class="text-lg font-bold text-white mb-3">Add New Vehicle</h3>
+    <div id="modal-add-veh" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#141c2e] border border-[#7c3aed] rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-car text-purple-400"></i> Add New Vehicle
+            </h3>
             <div class="flex flex-col gap-3">
                 <div>
-                    <label class="text-xs text-slate-300">Vehicle Number (Registration No.)</label>
-                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mono mt-1">
+                    <label class="text-xs text-slate-300">Vehicle Number (Primary Key)</label>
+                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Model Name</label>
-                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4 Hard Top Diesel" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-300">Type</label>
-                        <select id="add-v-type" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                        <select id="add-v-type" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
                             <option>Car</option>
                             <option>Bike</option>
                             <option>Scooter</option>
-                            <option>SUV</option>
                         </select>
                     </div>
                     <div>
                         <label class="text-xs text-slate-300">Daily Rate (₹)</label>
-                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
-                    <button onclick="confirmAddVehicle()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs">Add Vehicle</button>
+                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
+                    <button onclick="confirmAddVehicle()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded text-xs shadow-[0_0_10px_rgba(124,58,237,0.3)]">Add Vehicle</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- MODAL: ADD CUSTOMER -->
-    <div id="modal-add-cust" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 relative">
-            <h3 class="text-lg font-bold text-white mb-3">Register New Customer</h3>
+    <div id="modal-add-cust" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#141c2e] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-blue-400"></i> Register Customer
+            </h3>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs text-slate-300">Full Name</label>
-                    <input type="text" id="add-c-name" placeholder="e.g. K. Vignesh" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                    <input type="text" id="add-c-name" placeholder="e.g. Rajesh Kumar" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Driving License Number</label>
-                    <input type="text" id="add-c-dl" placeholder="e.g. TN-37-2023-0099881" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mono mt-1">
+                    <input type="text" id="add-c-dl" placeholder="e.g. DL-TN-01-2023-0004123" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Phone Number</label>
-                    <input type="text" id="add-c-phone" placeholder="e.g. 9840192837" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                    <input type="text" id="add-c-phone" placeholder="e.g. +91 9876543210" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
-                    <button onclick="confirmAddCustomer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs">Register Customer</button>
+                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
+                    <button onclick="confirmAddCustomer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs">Register</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT: SQLITE WASM DATABASE ENGINE & APP LOGIC -->
+    <!-- JAVASCRIPT: SQLITE WASM & APP ENGINE -->
     <script>
         let db = null;
+        let selectedVehicleNumber = null;
 
-        // Initialize SQLite WebAssembly Engine
         async function initDB() {
             try {
                 const SQL = await initSqlJs({
@@ -371,20 +488,18 @@
                 createSchemaAndSeed();
                 renderAll();
             } catch (err) {
-                console.error("WASM SQLite Init Error:", err);
+                console.error("WASM Init Error:", err);
             }
         }
 
         function createSchemaAndSeed() {
-            // Enable Foreign Keys
             db.run("PRAGMA foreign_keys = ON;");
 
-            // DDL: Tables
             db.run(`
                 CREATE TABLE IF NOT EXISTS Vehicles (
                     Vehicle_Number VARCHAR(20) PRIMARY KEY,
                     Model_Name VARCHAR(50) NOT NULL,
-                    Vehicle_Type VARCHAR(20) NOT NULL CHECK (Vehicle_Type IN ('Car', 'Bike', 'Scooter', 'SUV')),
+                    Vehicle_Type VARCHAR(20) NOT NULL CHECK (Vehicle_Type IN ('Car', 'Bike', 'Scooter')),
                     Daily_Rate DECIMAL(8,2) NOT NULL CHECK (Daily_Rate > 0),
                     Status VARCHAR(15) NOT NULL DEFAULT 'Available' CHECK (Status IN ('Available', 'Rented', 'Maintenance')),
                     Fuel_Level DECIMAL(5,2) NOT NULL DEFAULT 100.00 CHECK (Fuel_Level BETWEEN 0.00 AND 100.00)
@@ -414,27 +529,27 @@
                 );
             `);
 
-            // Seed Data
+            // Seed Exact Vehicles from OG
             db.run(`
                 INSERT INTO Vehicles (Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level) VALUES
-                ('TN 37 BY 0650', 'Mahindra Thar 4x4', 'SUV', 3200.00, 'Available', 100.00),
-                ('TN 01 AB 1984', 'Royal Enfield Classic 350', 'Bike', 900.00, 'Available', 95.00),
-                ('TN 38 CD 4350', 'Honda City i-VTEC', 'Car', 2100.00, 'Available', 85.00),
-                ('KL 07 EF 4444', 'Hyundai Creta SX', 'SUV', 2800.00, 'Available', 90.00),
-                ('KA 05 GH 3900', 'Ather 450X Gen 3', 'Scooter', 650.00, 'Available', 100.00),
-                ('TN 02 XY 5001', 'Maruti Suzuki Swift', 'Car', 1500.00, 'Available', 80.00),
-                ('TN 43 Z 1234', 'Yamaha MT-15 V2', 'Bike', 1100.00, 'Available', 100.00);
+                ('KA 05 GH 3900', 'KTM Duke 390 Gen-3', 'Bike', 1500.00, 'Available', 13.80),
+                ('KL 07 EF 4444', 'Mahindra Thar 4x4 Hard Top Diesel', 'Car', 3200.00, 'Available', 80.00),
+                ('TN 01 AB 1984', 'HM Contessa Classic 1.8 GLX', 'Car', 2500.00, 'Available', 95.00),
+                ('TN 37 BY 0650', 'Royal Enfield Continental GT 650', 'Bike', 1200.00, 'Available', 100.00),
+                ('TN 38 CD 4350', 'Royal Enfield Classic 350 Stealth Black', 'Bike', 900.00, 'Available', 100.00),
+                ('TN 60 AG 5321', 'HARELY DAVIDSON', 'Bike', 21500.00, 'Available', 100.00),
+                ('TN 66 JK 2800', 'Tata Harrier Dark Edition', 'Car', 2800.00, 'Available', 90.00);
 
                 INSERT INTO Customers (Customer_ID, Full_Name, Driving_License_Number, Phone_Number) VALUES
-                (1, 'Arun Kumar', 'TN-37-2021-0004123', '9840192837'),
-                (2, 'Sneha Patel', 'KA-05-2020-0098765', '9884012345'),
-                (3, 'Rahul Sharma', 'DL-04-2019-1122334', '9711009988'),
-                (4, 'Gajendran', 'TN-38-2022-0055443', '9443322110');
+                (1, 'Rajesh Kumar', 'DL-TN-01-2023-0004123', '+91 9876543210'),
+                (2, 'Priya Sundaram', 'DL-TN-37-2022-0008745', '+91 9843212345'),
+                (3, 'Vignesh Anand', 'DL-KA-05-2021-0001928', '+91 9789012345'),
+                (4, 'Gajendran', 'DL-TN-38-2022-0055443', '+91 9443322110');
 
                 INSERT INTO Rentals (Vehicle_Number, Customer_ID, Rental_Date, Return_Date, Return_Fuel_Level, Daily_Rate_Applied, Penalty_Fee, Total_Amount, Rental_Status) VALUES
-                ('TN 37 BY 0650', 1, '2026-09-10', '2026-09-15', 85.00, 3200.00, 0.00, 16000.00, 'Completed'),
-                ('TN 01 AB 1984', 2, '2026-09-12', '2026-09-16', 15.00, 900.00, 500.00, 4100.00, 'Completed'),
-                ('TN 38 CD 4350', 3, '2026-09-14', '2026-09-20', 90.00, 2100.00, 0.00, 12500.00, 'Completed');
+                ('TN 60 AG 5321', 1, '2026-09-10', '2026-09-11', 100.0, 21500.0, 0.0, 21500.0, 'Completed'),
+                ('KL 07 EF 4444', 2, '2026-09-12', '2026-09-14', 80.0, 3200.0, 0.0, 6400.0, 'Completed'),
+                ('TN 01 AB 1984', 3, '2026-09-15', '2026-09-16', 15.0, 2500.0, 500.0, 3000.0, 'Completed');
             `);
         }
 
@@ -455,41 +570,60 @@
             document.getElementById('stat-total').innerText = totalVeh;
             document.getElementById('stat-avail').innerText = availVeh;
             document.getElementById('stat-rented').innerText = rentedVeh;
-            document.getElementById('stat-revenue').innerText = `₹${Number(totalRev).toLocaleString('en-IN')}`;
+            document.getElementById('stat-revenue').innerText = `₹${Number(totalRev).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+
+        function selectVehicleRow(vNum) {
+            selectedVehicleNumber = vNum;
+            document.querySelectorAll('#fleet-tbody tr').forEach(r => {
+                if (r.getAttribute('data-veh') === vNum) {
+                    r.classList.add('selected-row');
+                } else {
+                    r.classList.remove('selected-row');
+                }
+            });
         }
 
         function renderFleet() {
-            const res = db.exec("SELECT Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level FROM Vehicles ORDER BY Status ASC, Vehicle_Number ASC");
+            const filter = document.getElementById('filter-status').value;
+            let query = "SELECT Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level FROM Vehicles ";
+            if (filter !== 'All') {
+                query += `WHERE Status = '${filter}' `;
+            }
+            query += "ORDER BY Vehicle_Number ASC;";
+
+            const res = db.exec(query);
             const tbody = document.getElementById('fleet-tbody');
             tbody.innerHTML = '';
 
             if (!res.length || !res[0].values.length) {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500">No vehicles registered</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500">No vehicles match the filter</td></tr>';
                 return;
             }
 
-            res[0].values.forEach(row => {
+            res[0].values.forEach((row, idx) => {
                 const [num, model, type, rate, status, fuel] = row;
                 const isAvail = status === 'Available';
                 const statusBadge = isAvail
-                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Available</span>`
-                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Rented</span>`;
+                    ? `<span class="inline-flex items-center gap-1.5 text-emerald-400 font-semibold"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>Available</span>`
+                    : `<span class="inline-flex items-center gap-1.5 text-amber-400 font-semibold"><span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>Rented</span>`;
 
-                const actionBtn = isAvail
-                    ? `<button onclick="startCheckout('${num}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded mr-1">Check Out</button>`
-                    : `<button onclick="startReturn('${num}')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded mr-1">Return</button>`;
+                const quickAction = isAvail
+                    ? `<span class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Rent</span>`
+                    : `<span class="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Return</span>`;
 
-                const delBtn = `<button onclick="deleteVehicle('${num}')" class="px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs rounded"><i class="fa-solid fa-trash-can"></i></button>`;
+                const isSelected = selectedVehicleNumber === num;
+                const rowClass = isSelected ? 'selected-row' : (idx % 2 === 0 ? 'bg-[#0d1322]' : 'bg-[#101828]');
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/40">
-                        <td class="py-3 px-4 mono text-white font-bold">${num}</td>
+                    <tr data-veh="${num}" onclick="selectVehicleRow('${num}')" ondblclick="handleRowDblClick('${num}', '${status}')" class="${rowClass} hover:bg-[#1e293b] cursor-pointer transition">
+                        <td class="py-3 px-4 font-mono font-bold">${num}</td>
                         <td class="py-3 px-4 text-slate-200">${model}</td>
-                        <td class="py-3 px-4 text-slate-400">${type}</td>
-                        <td class="py-3 px-4 text-slate-200">₹${rate}</td>
-                        <td class="py-3 px-4 text-slate-300 font-mono">${fuel}%</td>
+                        <td class="py-3 px-4 text-slate-300">${type}</td>
+                        <td class="py-3 px-4 text-slate-200">₹${Number(rate).toFixed(2)}</td>
+                        <td class="py-3 px-4 font-mono">${Number(fuel).toFixed(1)}%</td>
                         <td class="py-3 px-4">${statusBadge}</td>
-                        <td class="py-3 px-4 text-right">${actionBtn}${delBtn}</td>
+                        <td class="py-3 px-4">${quickAction}</td>
                     </tr>
                 `;
             });
@@ -512,16 +646,16 @@
             res[0].values.forEach(row => {
                 const [id, name, dl, phone, activeCount] = row;
                 const countBadge = activeCount > 0
-                    ? `<span class="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">${activeCount} Active</span>`
+                    ? `<span class="px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">${activeCount} Active</span>`
                     : `<span class="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-400">0 Active</span>`;
 
-                const delBtn = `<button onclick="deleteCustomer(${id})" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs rounded"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
+                const delBtn = `<button onclick="deleteCustomer(${id})" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs rounded transition"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/40">
-                        <td class="py-3 px-4 mono text-slate-400 font-bold">#${id}</td>
+                    <tr class="hover:bg-[#1e293b]">
+                        <td class="py-3 px-4 font-mono text-slate-400 font-bold">#${id}</td>
                         <td class="py-3 px-4 text-white font-semibold">${name}</td>
-                        <td class="py-3 px-4 mono text-slate-300">${dl}</td>
+                        <td class="py-3 px-4 font-mono text-slate-300">${dl}</td>
                         <td class="py-3 px-4 text-slate-400">${phone}</td>
                         <td class="py-3 px-4">${countBadge}</td>
                         <td class="py-3 px-4 text-right">${delBtn}</td>
@@ -547,26 +681,68 @@
             res[0].values.forEach(row => {
                 const [id, vNum, cName, rDate, retDate, fuel, penalty, total, status] = row;
                 const statusBadge = status === 'Active'
-                    ? `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Active</span>`
-                    : `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>`;
+                    ? `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">Active</span>`
+                    : `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Completed</span>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/40">
-                        <td class="py-3 px-4 mono text-slate-400 font-bold">#${id}</td>
-                        <td class="py-3 px-4 mono text-white">${vNum}</td>
-                        <td class="py-3 px-4 text-slate-200">${cName}</td>
+                    <tr class="hover:bg-[#1e293b]">
+                        <td class="py-3 px-4 font-mono text-slate-400 font-bold">#${id}</td>
+                        <td class="py-3 px-4 font-mono text-white font-bold">${vNum}</td>
+                        <td class="py-3 px-4 text-slate-200 font-medium">${cName}</td>
                         <td class="py-3 px-4 text-slate-400 text-xs">${rDate}</td>
                         <td class="py-3 px-4 text-slate-400 text-xs">${retDate || '--'}</td>
-                        <td class="py-3 px-4 mono text-slate-300">${fuel !== null ? fuel + '%' : '--'}</td>
-                        <td class="py-3 px-4 text-amber-400 font-mono">₹${penalty || 0}</td>
-                        <td class="py-3 px-4 text-emerald-400 font-mono font-bold">₹${total || 0}</td>
+                        <td class="py-3 px-4 font-mono text-slate-300">${fuel !== null ? Number(fuel).toFixed(1) + '%' : '--'}</td>
+                        <td class="py-3 px-4 text-amber-400 font-mono">₹${Number(penalty).toFixed(2)}</td>
+                        <td class="py-3 px-4 text-emerald-400 font-mono font-bold">₹${Number(total).toFixed(2)}</td>
                         <td class="py-3 px-4">${statusBadge}</td>
                     </tr>
                 `;
             });
         }
 
-        // TRIGGER EXECUTION: CHECK OUT
+        // ACTION BUTTON HANDLERS
+        function handleRowDblClick(vNum, status) {
+            if (status === 'Available') {
+                startCheckout(vNum);
+            } else {
+                startReturn(vNum);
+            }
+        }
+
+        function handleCheckOutClick() {
+            if (!selectedVehicleNumber) {
+                alert("Please select an 'Available' vehicle from the table first.");
+                return;
+            }
+            const res = db.exec(`SELECT Status FROM Vehicles WHERE Vehicle_Number = '${selectedVehicleNumber}'`);
+            if (res[0].values[0][0] !== 'Available') {
+                alert(`Vehicle ${selectedVehicleNumber} is already rented out.`);
+                return;
+            }
+            startCheckout(selectedVehicleNumber);
+        }
+
+        function handleReturnClick() {
+            if (!selectedVehicleNumber) {
+                alert("Please select a 'Rented' vehicle from the table first.");
+                return;
+            }
+            const res = db.exec(`SELECT Status FROM Vehicles WHERE Vehicle_Number = '${selectedVehicleNumber}'`);
+            if (res[0].values[0][0] !== 'Rented') {
+                alert(`Vehicle ${selectedVehicleNumber} is already available.`);
+                return;
+            }
+            startReturn(selectedVehicleNumber);
+        }
+
+        function handleDeleteVehicleClick() {
+            if (!selectedVehicleNumber) {
+                alert("Please select a vehicle from the table to delete.");
+                return;
+            }
+            deleteVehicle(selectedVehicleNumber);
+        }
+
         function startCheckout(vNum) {
             document.getElementById('co-veh-num').value = vNum;
             const select = document.getElementById('co-cust-select');
@@ -575,7 +751,7 @@
             const res = db.exec("SELECT Customer_ID, Full_Name FROM Customers ORDER BY Full_Name ASC");
             if (res.length && res[0].values.length) {
                 res[0].values.forEach(c => {
-                    select.innerHTML += `<option value="${c[0]}">${c[1]} (ID: ${c[0]})</option>`;
+                    select.innerHTML += `<option value="${c[0]}">${c[1]} (ID: #${c[0]})</option>`;
                 });
             }
             openModal('modal-checkout');
@@ -585,29 +761,26 @@
             const vNum = document.getElementById('co-veh-num').value;
             const custId = parseInt(document.getElementById('co-cust-select').value);
 
-            // Fetch daily rate
             const rateRes = db.exec(`SELECT Daily_Rate FROM Vehicles WHERE Vehicle_Number = '${vNum}'`);
             const dailyRate = rateRes[0].values[0][0];
 
-            // 1. Insert Rental Record
             const today = new Date().toISOString().split('T')[0];
             db.run(`
                 INSERT INTO Rentals (Vehicle_Number, Customer_ID, Rental_Date, Daily_Rate_Applied, Rental_Status)
                 VALUES ('${vNum}', ${custId}, '${today}', ${dailyRate}, 'Active');
             `);
 
-            // 2. Trigger Action: Flip status to Rented
+            // Trigger action
             db.run(`UPDATE Vehicles SET Status = 'Rented' WHERE Vehicle_Number = '${vNum}';`);
 
             closeModal('modal-checkout');
             renderAll();
         }
 
-        // STORED PROCEDURE EXECUTION: RETURN VEHICLE & FUEL AUDIT
         function startReturn(vNum) {
             document.getElementById('ret-veh-num').value = vNum;
-            document.getElementById('ret-fuel-slider').value = 15;
-            updateFuelLabel(15);
+            document.getElementById('ret-fuel-slider').value = 13.8;
+            updateFuelLabel(13.8);
             openModal('modal-return');
         }
 
@@ -625,7 +798,6 @@
             const vNum = document.getElementById('ret-veh-num').value;
             const fuelLevel = parseFloat(document.getElementById('ret-fuel-slider').value);
 
-            // Fetch Active Rental
             const rentalRes = db.exec(`SELECT Rental_ID, Daily_Rate_Applied FROM Rentals WHERE Vehicle_Number = '${vNum}' AND Rental_Status = 'Active'`);
             if (!rentalRes.length || !rentalRes[0].values.length) {
                 alert("Error: No active rental record found for this vehicle.");
@@ -638,7 +810,6 @@
             const totalAmount = dailyRate + penaltyFee;
             const today = new Date().toISOString().split('T')[0];
 
-            // Stored Procedure Logic
             db.run(`
                 UPDATE Rentals
                 SET Return_Date = '${today}',
@@ -659,17 +830,17 @@
             renderAll();
         }
 
-        // DELETION GUARDS
         function deleteVehicle(vNum) {
             const check = db.exec(`SELECT COUNT(*) FROM Rentals WHERE Vehicle_Number = '${vNum}' AND Rental_Status = 'Active'`);
             if (check[0].values[0][0] > 0) {
-                alert(`Safety Guard Blocked Deletion:\nVehicle ${vNum} is currently active in a rental. Please return it before deleting.`);
+                alert(`Active-Rental Safety Guard Blocked Deletion:\nVehicle ${vNum} is currently active in a rental. Please return it before deleting.`);
                 return;
             }
 
             if (confirm(`Are you sure you want to delete vehicle ${vNum}?`)) {
                 db.run(`DELETE FROM Rentals WHERE Vehicle_Number = '${vNum}';`);
                 db.run(`DELETE FROM Vehicles WHERE Vehicle_Number = '${vNum}';`);
+                selectedVehicleNumber = null;
                 renderAll();
             }
         }
@@ -677,7 +848,7 @@
         function deleteCustomer(custId) {
             const check = db.exec(`SELECT COUNT(*) FROM Rentals WHERE Customer_ID = ${custId} AND Rental_Status = 'Active'`);
             if (check[0].values[0][0] > 0) {
-                alert(`Safety Guard Blocked Deletion:\nCustomer #${custId} has ongoing active rentals. Please return all vehicles before deleting.`);
+                alert(`Active-Rental Safety Guard Blocked Deletion:\nCustomer #${custId} has ongoing active rentals.`);
                 return;
             }
 
@@ -688,7 +859,6 @@
             }
         }
 
-        // ADD VEHICLE
         function confirmAddVehicle() {
             const num = document.getElementById('add-v-num').value.trim();
             const model = document.getElementById('add-v-model').value.trim();
@@ -696,7 +866,7 @@
             const rate = parseFloat(document.getElementById('add-v-rate').value);
 
             if (!num || !model || isNaN(rate) || rate <= 0) {
-                alert("Please fill in valid vehicle registration number, model, and rate.");
+                alert("Please fill in a valid registration number, model name, and rate.");
                 return;
             }
 
@@ -705,11 +875,10 @@
                 closeModal('modal-add-veh');
                 renderAll();
             } catch (err) {
-                alert("Database Error: " + err.message);
+                alert("Database Constraint Error: " + err.message);
             }
         }
 
-        // ADD CUSTOMER
         function confirmAddCustomer() {
             const name = document.getElementById('add-c-name').value.trim();
             const dl = document.getElementById('add-c-dl').value.trim();
@@ -725,11 +894,10 @@
                 closeModal('modal-add-cust');
                 renderAll();
             } catch (err) {
-                alert("Database Error (Constraint Violation): " + err.message);
+                alert("Database Constraint Error: " + err.message);
             }
         }
 
-        // SQL CONSOLE
         function presetQuery(q) {
             document.getElementById('sql-input').value = q;
             executeSQL();
@@ -749,22 +917,22 @@
 
                 if (!res.length) {
                     msg.innerText = "Query executed successfully (0 rows returned / DDL executed)";
-                    msg.className = "text-xs text-emerald-400 mono";
+                    msg.className = "text-xs text-emerald-400 font-mono";
                     table.innerHTML = '<tr><td class="p-3 text-slate-400">Statement executed successfully.</td></tr>';
                     renderAll();
                     return;
                 }
 
                 msg.innerText = `${res[0].values.length} row(s) returned`;
-                msg.className = "text-xs text-emerald-400 mono";
+                msg.className = "text-xs text-emerald-400 font-mono";
 
-                let html = '<thead class="bg-slate-900 border-b border-slate-800 text-slate-300"><tr>';
-                res[0].columns.forEach(col => html += `<th class="p-2 border border-slate-800">${col}</th>`);
+                let html = '<thead class="bg-[#141c2e] border-b border-[#232f48] text-slate-300"><tr>';
+                res[0].columns.forEach(col => html += `<th class="p-2 border border-[#232f48]">${col}</th>`);
                 html += '</tr></thead><tbody>';
 
                 res[0].values.forEach(row => {
-                    html += '<tr class="hover:bg-slate-800/60 border-b border-slate-900">';
-                    row.forEach(val => html += `<td class="p-2 text-slate-300 border border-slate-800">${val !== null ? val : 'NULL'}</td>`);
+                    html += '<tr class="hover:bg-[#1e293b] border-b border-[#141c2e]">';
+                    row.forEach(val => html += `<td class="p-2 text-slate-300 border border-[#232f48]">${val !== null ? val : 'NULL'}</td>`);
                     html += '</tr>';
                 });
                 html += '</tbody>';
@@ -772,34 +940,22 @@
                 renderAll();
             } catch (err) {
                 msg.innerText = "Error: " + err.message;
-                msg.className = "text-xs text-rose-400 mono";
+                msg.className = "text-xs text-rose-400 font-mono";
                 container.classList.add('hidden');
             }
         }
 
-        // TAB SWITCHING
         function switchTab(tab) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('[id^="tab-"]').forEach(el => {
-                el.className = 'px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700';
-            });
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
             document.getElementById(`content-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).className = 'px-4 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white';
+            document.getElementById(`tab-${tab}`).classList.add('active');
         }
 
-        // MODAL TOGGLING
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        function resetDatabase() {
-            if (confirm("Reset demo database to original initial state?")) {
-                createSchemaAndSeed();
-                renderAll();
-            }
-        }
-
-        // BOOTSTRAP
         window.addEventListener('DOMContentLoaded', initDB);
     </script>
 </body>

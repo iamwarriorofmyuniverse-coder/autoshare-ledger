@@ -18,7 +18,7 @@
         }
 
         body {
-            background-color: #0b0f19;
+            background-color: #070b13;
             color: #f8fafc;
             margin: 0;
             padding: 16px 25px;
@@ -27,11 +27,11 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* 1:1 EXACT STAT CARDS (Exact match to desktop Tkinter canvas) */
+        /* 1:1 EXACT STAT CARDS (Matched to media_1791135278363.png) */
         .stat-cards-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            gap: 16px;
         }
         @media (max-width: 1024px) {
             .stat-cards-container {
@@ -42,71 +42,116 @@
         .og-stat-card {
             border-radius: 14px;
             padding: 14px 18px;
-            height: 96px;
+            height: 98px;
             display: flex;
-            align-items: center;
-            gap: 14px;
-            background: #141c2e;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
+            overflow: hidden;
             box-sizing: border-box;
         }
 
-        /* Border & Ambient Neon Glow Layers */
-        .card-blue {
-            background: #13233c;
-            border: 1.5px solid #2563eb;
-            box-shadow: 0 0 16px rgba(37, 99, 235, 0.4), inset 0 0 10px rgba(56, 189, 248, 0.1);
-        }
-        .card-emerald {
-            background: #112a28;
-            border: 1.5px solid #059669;
-            box-shadow: 0 0 16px rgba(5, 150, 105, 0.4), inset 0 0 10px rgba(52, 211, 153, 0.1);
-        }
-        .card-rose {
-            background: #2e1520;
-            border: 1.5px solid #e11d48;
-            box-shadow: 0 0 16px rgba(225, 29, 72, 0.4), inset 0 0 10px rgba(251, 113, 133, 0.1);
-        }
-        .card-amber {
-            background: #2b2112;
-            border: 1.5px solid #d97706;
-            box-shadow: 0 0 16px rgba(217, 119, 6, 0.4), inset 0 0 10px rgba(251, 191, 36, 0.1);
+        /* Top 3D Bubble / Glass Sheen Reflection (Exact canvas texture) */
+        .og-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            height: 42%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            pointer-events: none;
         }
 
-        /* Large Circular Icon Discs */
-        .og-disc {
-            width: 46px;
-            height: 46px;
+        /* 1. TOTAL FLEET CARD (Blue) */
+        .card-blue {
+            background: linear-gradient(180deg, #132742 0%, #0c1626 100%);
+            border: 1.5px solid #2563eb;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 14px rgba(37, 99, 235, 0.45);
+        }
+        .disc-blue {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
+            background: #38bdf8;
+            color: #070b13;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 13px;
             flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
         }
-        .disc-blue {
-            background: #2563eb;
-            border: 1.5px solid #60a5fa;
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+
+        /* 2. AVAILABLE CARD (Emerald) */
+        .card-emerald {
+            background: linear-gradient(180deg, #10332a 0%, #091a15 100%);
+            border: 1.5px solid #059669;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 14px rgba(5, 150, 105, 0.45);
         }
         .disc-emerald {
-            background: #059669;
-            border: 1.5px solid #34d399;
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #34d399;
+            color: #070b13;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+        }
+
+        /* 3. RENTED OUT CARD (Rose) */
+        .card-rose {
+            background: linear-gradient(180deg, #381322 0%, #1e0912 100%);
+            border: 1.5px solid #e11d48;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 14px rgba(225, 29, 72, 0.45);
         }
         .disc-rose {
-            background: #e11d48;
-            border: 1.5px solid #fb7185;
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(251, 113, 133, 0.6);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fb7185;
+            color: #070b13;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(251, 113, 133, 0.6);
+        }
+
+        /* 4. TOTAL REVENUE CARD (Amber) */
+        .card-amber {
+            background: linear-gradient(180deg, #36230c 0%, #1c1105 100%);
+            border: 1.5px solid #d97706;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 14px rgba(217, 119, 6, 0.45);
         }
         .disc-amber {
-            background: #d97706;
-            border: 1.5px solid #fbbf24;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fbbf24;
+            color: #070b13;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+        }
+
+        /* Value Number (Bottom Left) */
+        .card-value {
+            font-size: 26px;
+            font-weight: 700;
             color: #ffffff;
-            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+            line-height: 1;
+            margin-top: 6px;
         }
 
         /* 1:1 Capsule Segmented Tab Bar */
@@ -243,7 +288,7 @@
 
         /* Scrollbars */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-track { background: #070b13; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; border: 1px solid #334155; }
     </style>
 </head>
@@ -267,50 +312,50 @@
             </div>
         </div>
 
-        <!-- 2. FOUR GLOWING STAT CARDS -->
+        <!-- 2. FOUR EXACT STAT CARDS (Matched to media_1791135278363.png) -->
         <div class="stat-cards-container">
-            <!-- TOTAL FLEET -->
+            <!-- 1. TOTAL FLEET -->
             <div class="og-stat-card card-blue">
-                <div class="og-disc disc-blue">
-                    <i class="fa-solid fa-car"></i>
+                <div class="flex items-center gap-3">
+                    <div class="disc-blue">
+                        <i class="fa-solid fa-car"></i>
+                    </div>
+                    <span class="text-[#e0f2fe] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</span>
                 </div>
-                <div>
-                    <div class="text-[#e0f2fe] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</div>
-                    <div id="stat-total" class="text-3xl font-bold text-white leading-tight mt-0.5">7</div>
-                </div>
+                <div id="stat-total" class="card-value">7</div>
             </div>
 
-            <!-- AVAILABLE -->
+            <!-- 2. AVAILABLE -->
             <div class="og-stat-card card-emerald">
-                <div class="og-disc disc-emerald">
-                    <i class="fa-solid fa-circle-check"></i>
+                <div class="flex items-center gap-3">
+                    <div class="disc-emerald">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <span class="text-[#d1fae5] text-xs font-bold tracking-wider uppercase">AVAILABLE</span>
                 </div>
-                <div>
-                    <div class="text-[#d1fae5] text-xs font-bold tracking-wider uppercase">AVAILABLE</div>
-                    <div id="stat-avail" class="text-3xl font-bold text-white leading-tight mt-0.5">7</div>
-                </div>
+                <div id="stat-avail" class="card-value">7</div>
             </div>
 
-            <!-- RENTED OUT -->
+            <!-- 3. RENTED OUT -->
             <div class="og-stat-card card-rose">
-                <div class="og-disc disc-rose">
-                    <i class="fa-solid fa-key"></i>
+                <div class="flex items-center gap-3">
+                    <div class="disc-rose">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <span class="text-[#ffe4e6] text-xs font-bold tracking-wider uppercase">RENTED OUT</span>
                 </div>
-                <div>
-                    <div class="text-[#ffe4e6] text-xs font-bold tracking-wider uppercase">RENTED OUT</div>
-                    <div id="stat-rented" class="text-3xl font-bold text-white leading-tight mt-0.5">0</div>
-                </div>
+                <div id="stat-rented" class="card-value">0</div>
             </div>
 
-            <!-- TOTAL REVENUE -->
+            <!-- 4. TOTAL REVENUE -->
             <div class="og-stat-card card-amber">
-                <div class="og-disc disc-amber">
-                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                <div class="flex items-center gap-3">
+                    <div class="disc-amber">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <span class="text-[#fef3c7] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</span>
                 </div>
-                <div>
-                    <div class="text-[#fef3c7] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</div>
-                    <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white leading-tight mt-0.5">₹30,900.00</div>
-                </div>
+                <div id="stat-revenue" class="card-value">₹30,900.00</div>
             </div>
         </div>
 

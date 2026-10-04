@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoShare Ledger - Car Rental & Bike-Share Database Ledger</title>
+    <title>AutoShare Ledger - Modern Obsidian Neon UI</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -12,211 +12,275 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
     <style>
-        /* Exact OG Obsidian Palette */
-        :root {
-            --bg-main: #0b0f19;
-            --bg-card: #141c2e;
-            --bg-inner: #0d1322;
-            --border-card: #232f48;
-        }
-
         body {
-            background-color: #0b0f19;
+            background-color: #080c14;
             color: #f8fafc;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            margin: 0;
+            padding: 16px 24px;
             user-select: none;
+            overflow-x: hidden;
         }
 
-        /* 1:1 Glowing Stat Cards */
-        .card-blue {
-            background: #13233c;
-            border: 1px solid #2563eb;
-            box-shadow: 0 0 15px rgba(37, 99, 235, 0.25), inset 0 0 10px rgba(56, 189, 248, 0.1);
+        /* 1:1 Stat Cards */
+        .stat-card {
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
         }
-        .card-emerald {
-            background: #112a28;
+        .stat-card-blue {
+            background: #0e1b2f;
+            border: 1px solid #1d4ed8;
+            box-shadow: 0 0 15px rgba(29, 78, 216, 0.25);
+        }
+        .stat-card-emerald {
+            background: #0d2320;
             border: 1px solid #059669;
-            box-shadow: 0 0 15px rgba(5, 150, 105, 0.25), inset 0 0 10px rgba(52, 211, 153, 0.1);
+            box-shadow: 0 0 15px rgba(5, 150, 105, 0.25);
         }
-        .card-rose {
-            background: #2e1520;
-            border: 1px solid #e11d48;
-            box-shadow: 0 0 15px rgba(225, 29, 72, 0.25), inset 0 0 10px rgba(251, 113, 133, 0.1);
+        .stat-card-rose {
+            background: #27101b;
+            border: 1px solid #be123c;
+            box-shadow: 0 0 15px rgba(190, 18, 60, 0.25);
         }
-        .card-amber {
-            background: #2b2112;
-            border: 1px solid #d97706;
-            box-shadow: 0 0 15px rgba(217, 119, 6, 0.25), inset 0 0 10px rgba(251, 191, 36, 0.1);
+        .stat-card-amber {
+            background: #251b0d;
+            border: 1px solid #b45309;
+            box-shadow: 0 0 15px rgba(180, 83, 9, 0.25);
         }
 
-        /* Tab Segmented Capsule */
-        .tab-capsule {
-            background: #141c2e;
-            border: 1px solid #232f48;
+        /* Capsule Segmented Tab Bar */
+        .tab-bar-container {
+            background: #111827;
+            border: 1px solid #1f2937;
             border-radius: 9999px;
-            padding: 4px;
+            padding: 3px 4px;
+            display: inline-flex;
+            gap: 4px;
         }
-        .tab-btn {
+        .tab-pill {
+            padding: 6px 18px;
             border-radius: 9999px;
-            padding: 8px 18px;
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.2s ease;
             color: #94a3b8;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .tab-btn.active {
-            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+        .tab-pill.active {
+            background: #1e293b;
             color: #ffffff;
             border: 1px solid #38bdf8;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
         }
 
-        /* Action Buttons with OG Glowing Borders */
-        .btn-checkout {
-            background: #0f2d26;
+        /* Action Buttons */
+        .btn-og {
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .btn-og-green {
+            background: #09261f;
             border: 1px solid #059669;
             color: #34d399;
-            box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
         }
-        .btn-checkout:hover { background: #134e42; }
+        .btn-og-green:hover { background: #0e3e33; color: #6ee7b7; }
 
-        .btn-return {
-            background: #172554;
+        .btn-og-blue {
+            background: #0e1e38;
             border: 1px solid #2563eb;
             color: #60a5fa;
-            box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
         }
-        .btn-return:hover { background: #1e3a8a; }
+        .btn-og-blue:hover { background: #17325c; color: #93c5fd; }
 
-        .btn-add {
-            background: #2e1065;
+        .btn-og-purple {
+            background: #24113d;
             border: 1px solid #7c3aed;
             color: #c084fc;
-            box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
         }
-        .btn-add:hover { background: #3b0764; }
+        .btn-og-purple:hover { background: #371a5e; color: #e9d5ff; }
 
-        .btn-delete {
-            background: #3f121e;
+        .btn-og-rose {
+            background: #33101c;
             border: 1px solid #e11d48;
             color: #fb7185;
-            box-shadow: 0 0 10px rgba(225, 29, 72, 0.2);
         }
-        .btn-delete:hover { background: #4c0519; }
+        .btn-og-rose:hover { background: #4e182a; color: #fecdd3; }
 
-        .btn-refresh {
-            background: #1e293b;
-            border: 1px solid #475569;
+        .btn-og-slate {
+            background: #182234;
+            border: 1px solid #334155;
             color: #cbd5e1;
         }
-        .btn-refresh:hover { background: #334155; }
+        .btn-og-slate:hover { background: #26354f; color: #ffffff; }
 
-        /* Table Selected Row Styling (Vivid Blue Glow) */
-        tr.selected-row {
+        /* Table Styling (Exact Match to Desktop Treeview) */
+        .table-container {
+            background: #080c14;
+            border: 1.5px solid #1e3a8a;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        table.og-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        table.og-table th {
+            background: #0b1324;
+            color: #60a5fa;
+            font-weight: 600;
+            padding: 9px 14px;
+            border-bottom: 1.5px solid #1e3a8a;
+            text-align: left;
+            white-space: nowrap;
+        }
+        table.og-table td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #0f172a;
+            white-space: nowrap;
+        }
+
+        /* Non-Selected Row Colors (Greenish Text on Dark) */
+        table.og-table tr.normal-row td {
+            color: #34d399;
+            background: #080c14;
+        }
+        table.og-table tr.normal-row:hover td {
+            background: #0f1c33;
+        }
+
+        /* Selected Row Highlight (Vivid Electric Blue with White Text) */
+        table.og-table tr.selected-row td {
             background-color: #2563eb !important;
             color: #ffffff !important;
-            box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+            font-weight: 600;
         }
-        tr.selected-row td {
+        table.og-table tr.selected-row .quick-action-text {
             color: #ffffff !important;
         }
+        table.og-table tr.selected-row .status-radio {
+            border-color: #ffffff !important;
+            background-color: #ffffff !important;
+        }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
-        ::-webkit-scrollbar-thumb { background: #232f48; border-radius: 3px; }
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #080c14; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; border: 1px solid #334155; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-6 lg:p-8 flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between">
 
-    <div class="max-w-7xl w-full mx-auto flex-1 flex flex-col gap-5">
+    <div class="max-w-[1400px] w-full mx-auto flex flex-col gap-4">
 
-        <!-- 1. HEADER (Exact match to OG) -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <!-- 1. HEADER (Exact match to Window) -->
+        <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-[#38bdf8] flex items-center gap-2">
+                <h1 class="text-xl font-bold tracking-tight text-[#38bdf8] flex items-center gap-2">
                     <i class="fa-solid fa-bolt text-[#38bdf8]"></i> AutoShare Ledger
                 </h1>
-                <p class="text-slate-400 text-xs mt-0.5 font-normal">
+                <p class="text-slate-400 text-xs mt-0.5">
                     High-Contrast Obsidian UI &bull; Car Rental & Bike-Share Database Ledger
                 </p>
             </div>
-            <div class="flex items-center gap-2 bg-[#112a28] border border-[#059669] text-[#34d399] px-4 py-1.5 rounded-full text-xs font-semibold shadow-[0_0_10px_rgba(5,150,105,0.3)]">
+            <div class="flex items-center gap-2 bg-[#09261f] border border-[#059669] text-[#34d399] px-4 py-1.5 rounded-full text-xs font-semibold shadow-[0_0_10px_rgba(5,150,105,0.3)]">
                 <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
                 System Active & Ready
             </div>
-        </header>
+        </div>
 
-        <!-- 2. GLOWING STAT CARDS (4 Columns) -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- 2. FOUR GLOWING METRIC CARDS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <!-- TOTAL FLEET -->
-            <div class="card-blue rounded-xl p-4 flex items-center justify-between">
+            <div class="stat-card stat-card-blue">
                 <div>
-                    <div class="text-[#93c5fd] text-xs font-bold tracking-wider uppercase">TOTAL FLEET</div>
-                    <div id="stat-total" class="text-3xl font-bold text-white mt-1">7</div>
+                    <div class="text-[#60a5fa] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-car"></i> TOTAL FLEET
+                    </div>
+                    <div id="stat-total" class="text-2xl md:text-3xl font-bold text-white mt-1">7</div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-blue-500/20 text-[#38bdf8] flex items-center justify-center text-xl border border-blue-400/30">
+                <div class="w-10 h-10 rounded-full bg-blue-500/20 text-[#38bdf8] flex items-center justify-center text-base border border-blue-400/30">
                     <i class="fa-solid fa-car-side"></i>
                 </div>
             </div>
 
             <!-- AVAILABLE -->
-            <div class="card-emerald rounded-xl p-4 flex items-center justify-between">
+            <div class="stat-card stat-card-emerald">
                 <div>
-                    <div class="text-[#6ee7b7] text-xs font-bold tracking-wider uppercase">AVAILABLE</div>
-                    <div id="stat-avail" class="text-3xl font-bold text-white mt-1">7</div>
+                    <div class="text-[#34d399] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-dot"></i> AVAILABLE
+                    </div>
+                    <div id="stat-avail" class="text-2xl md:text-3xl font-bold text-white mt-1">7</div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-[#34d399] flex items-center justify-center text-xl border border-emerald-400/30">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-[#34d399] flex items-center justify-center text-base border border-emerald-400/30">
                     <i class="fa-solid fa-circle-check"></i>
                 </div>
             </div>
 
             <!-- RENTED OUT -->
-            <div class="card-rose rounded-xl p-4 flex items-center justify-between">
+            <div class="stat-card stat-card-rose">
                 <div>
-                    <div class="text-[#fda4af] text-xs font-bold tracking-wider uppercase">RENTED OUT</div>
-                    <div id="stat-rented" class="text-3xl font-bold text-white mt-1">0</div>
+                    <div class="text-[#fb7185] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-notch"></i> RENTED OUT
+                    </div>
+                    <div id="stat-rented" class="text-2xl md:text-3xl font-bold text-white mt-1">0</div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-rose-500/20 text-[#fb7185] flex items-center justify-center text-xl border border-rose-400/30">
+                <div class="w-10 h-10 rounded-full bg-rose-500/20 text-[#fb7185] flex items-center justify-center text-base border border-rose-400/30">
                     <i class="fa-solid fa-key"></i>
                 </div>
             </div>
 
             <!-- TOTAL REVENUE -->
-            <div class="card-amber rounded-xl p-4 flex items-center justify-between">
+            <div class="stat-card stat-card-amber">
                 <div>
-                    <div class="text-[#fde68a] text-xs font-bold tracking-wider uppercase">TOTAL REVENUE</div>
+                    <div class="text-[#fbbf24] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-coins"></i> TOTAL REVENUE
+                    </div>
                     <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white mt-1">₹30,900.00</div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-[#fbbf24] flex items-center justify-center text-xl border border-amber-400/30">
+                <div class="w-10 h-10 rounded-full bg-amber-500/20 text-[#fbbf24] flex items-center justify-center text-base border border-amber-400/30">
                     <i class="fa-solid fa-indian-rupee-sign"></i>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- 3. SEGMENTED TABS (OG Style) -->
-        <div class="flex items-center">
-            <div class="tab-capsule flex items-center gap-1">
-                <button onclick="switchTab('fleet')" id="tab-fleet" class="tab-btn active">
-                    <i class="fa-solid fa-car mr-1.5"></i> Fleet Status
-                </button>
-                <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn">
-                    <i class="fa-solid fa-receipt mr-1.5"></i> Rental Ledger
-                </button>
-                <button onclick="switchTab('customers')" id="tab-customers" class="tab-btn">
-                    <i class="fa-solid fa-user mr-1.5"></i> Customers
-                </button>
-                <button onclick="switchTab('sql')" id="tab-sql" class="tab-btn">
-                    <i class="fa-solid fa-graduation-cap mr-1.5"></i> SQL Inspector
-                </button>
+        <!-- 3. TAB CAPSULE BAR -->
+        <div>
+            <div class="tab-bar-container">
+                <div onclick="switchTab('fleet')" id="tab-fleet" class="tab-pill active">
+                    <i class="fa-solid fa-car"></i> Fleet Status
+                </div>
+                <div onclick="switchTab('ledger')" id="tab-ledger" class="tab-pill">
+                    <i class="fa-solid fa-receipt"></i> Rental Ledger
+                </div>
+                <div onclick="switchTab('customers')" id="tab-customers" class="tab-pill">
+                    <i class="fa-solid fa-user"></i> Customers
+                </div>
+                <div onclick="switchTab('sql')" id="tab-sql" class="tab-pill">
+                    <i class="fa-solid fa-graduation-cap"></i> SQL Inspector
+                </div>
             </div>
         </div>
 
-        <!-- 4. FILTER & ACTION TOOLBAR (Exact match to OG) -->
-        <div class="flex flex-wrap items-center justify-between gap-3 bg-[#141c2e] p-3 rounded-xl border border-[#232f48]">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-slate-300">Filter Status:</span>
-                <select id="filter-status" onchange="renderFleet()" class="bg-[#0d1322] border border-[#232f48] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+        <!-- 4. TOOLBAR (Filter Status + Buttons) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div class="flex items-center gap-2 text-xs">
+                <span class="text-slate-300 font-semibold">Filter Status:</span>
+                <select id="filter-status" onchange="renderFleet()" class="bg-[#0b1324] border border-[#1e293b] rounded px-3 py-1 text-xs text-white focus:outline-none focus:border-blue-500">
                     <option value="All">All</option>
                     <option value="Available">Available</option>
                     <option value="Rented">Rented</option>
@@ -224,164 +288,153 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="handleCheckOutClick()" class="btn-checkout px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <button onclick="handleCheckOutClick()" class="btn-og btn-og-green">
                     <i class="fa-solid fa-key"></i> Check Out (Rent)
                 </button>
-                <button onclick="handleReturnClick()" class="btn-return px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <button onclick="handleReturnClick()" class="btn-og btn-og-blue">
                     <i class="fa-solid fa-rotate-left"></i> Return (Procedure)
                 </button>
-                <button onclick="openModal('modal-add-veh')" class="btn-add px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <button onclick="openModal('modal-add-veh')" class="btn-og btn-og-purple">
                     <i class="fa-solid fa-plus"></i> Add Vehicle
                 </button>
-                <button onclick="handleDeleteVehicleClick()" class="btn-delete px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <button onclick="handleDeleteVehicleClick()" class="btn-og btn-og-rose">
                     <i class="fa-solid fa-trash-can"></i> Delete Vehicle
                 </button>
-                <button onclick="renderAll()" class="btn-refresh px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <button onclick="renderAll()" class="btn-og btn-og-slate">
                     <i class="fa-solid fa-rotate"></i> Refresh
                 </button>
             </div>
         </div>
 
-        <!-- 5. MAIN CONTENT PANELS -->
+        <!-- 5. MAIN CONTENT -->
 
-        <!-- TAB 1: FLEET STATUS (OG Table Layout) -->
-        <section id="content-fleet" class="tab-pane flex flex-col">
-            <div class="bg-[#0d1322] border border-[#232f48] rounded-xl overflow-hidden shadow-xl">
-                <div class="overflow-x-auto max-h-[480px]">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-[#141c2e] text-slate-300 font-semibold border-b border-[#232f48] sticky top-0">
-                            <tr>
-                                <th class="py-3 px-4">Vehicle No (Primary Key)</th>
-                                <th class="py-3 px-4">Model Name</th>
-                                <th class="py-3 px-4">Type</th>
-                                <th class="py-3 px-4">Daily Rate (₹)</th>
-                                <th class="py-3 px-4">Current Fuel</th>
-                                <th class="py-3 px-4">Availability Status</th>
-                                <th class="py-3 px-4">Quick Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fleet-tbody" class="divide-y divide-[#1e293b] font-normal">
-                            <!-- Injected by JS -->
-                        </tbody>
-                    </table>
-                </div>
+        <!-- TAB 1: FLEET STATUS (Exact Treeview Replica) -->
+        <div id="content-fleet" class="tab-pane">
+            <div class="table-container">
+                <table class="og-table" id="fleet-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle No (Primary Key)</th>
+                            <th>Model Name</th>
+                            <th>Type</th>
+                            <th>Daily Rate (₹)</th>
+                            <th>Current Fuel</th>
+                            <th>Availability Status</th>
+                            <th>Quick Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fleet-tbody">
+                        <!-- Injected by JS -->
+                    </tbody>
+                </table>
             </div>
-        </section>
+        </div>
 
         <!-- TAB 2: RENTAL LEDGER -->
-        <section id="content-ledger" class="tab-pane hidden flex flex-col">
-            <div class="bg-[#0d1322] border border-[#232f48] rounded-xl overflow-hidden shadow-xl">
-                <div class="overflow-x-auto max-h-[480px]">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-[#141c2e] text-slate-300 font-semibold border-b border-[#232f48] sticky top-0">
-                            <tr>
-                                <th class="py-3 px-4">Rental ID</th>
-                                <th class="py-3 px-4">Vehicle No</th>
-                                <th class="py-3 px-4">Customer Name</th>
-                                <th class="py-3 px-4">Rental Date</th>
-                                <th class="py-3 px-4">Return Date</th>
-                                <th class="py-3 px-4">Return Fuel</th>
-                                <th class="py-3 px-4">Penalty Fee</th>
-                                <th class="py-3 px-4">Total Amount</th>
-                                <th class="py-3 px-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledger-tbody" class="divide-y divide-[#1e293b] font-normal">
-                            <!-- Injected by JS -->
-                        </tbody>
-                    </table>
-                </div>
+        <div id="content-ledger" class="tab-pane hidden">
+            <div class="table-container">
+                <table class="og-table">
+                    <thead>
+                        <tr>
+                            <th>Rental ID</th>
+                            <th>Vehicle No</th>
+                            <th>Customer Name</th>
+                            <th>Rental Date</th>
+                            <th>Return Date</th>
+                            <th>Return Fuel</th>
+                            <th>Penalty Fee</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-tbody">
+                        <!-- Injected by JS -->
+                    </tbody>
+                </table>
             </div>
-        </section>
+        </div>
 
         <!-- TAB 3: CUSTOMERS -->
-        <section id="content-customers" class="tab-pane hidden flex flex-col gap-3">
+        <div id="content-customers" class="tab-pane hidden flex flex-col gap-3">
             <div class="flex justify-end">
-                <button onclick="openModal('modal-add-cust')" class="btn-add px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <button onclick="openModal('modal-add-cust')" class="btn-og btn-og-purple">
                     <i class="fa-solid fa-user-plus"></i> Add Customer
                 </button>
             </div>
-            <div class="bg-[#0d1322] border border-[#232f48] rounded-xl overflow-hidden shadow-xl">
-                <div class="overflow-x-auto max-h-[480px]">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-[#141c2e] text-slate-300 font-semibold border-b border-[#232f48] sticky top-0">
-                            <tr>
-                                <th class="py-3 px-4">Customer ID</th>
-                                <th class="py-3 px-4">Full Name</th>
-                                <th class="py-3 px-4">Driving License No</th>
-                                <th class="py-3 px-4">Phone Number</th>
-                                <th class="py-3 px-4">Active Rentals</th>
-                                <th class="py-3 px-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cust-tbody" class="divide-y divide-[#1e293b] font-normal">
-                            <!-- Injected by JS -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-container">
+                <table class="og-table">
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Full Name</th>
+                            <th>Driving License No</th>
+                            <th>Phone Number</th>
+                            <th>Active Rentals</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cust-tbody">
+                        <!-- Injected by JS -->
+                    </tbody>
+                </table>
             </div>
-        </section>
+        </div>
 
         <!-- TAB 4: SQL INSPECTOR -->
-        <section id="content-sql" class="tab-pane hidden flex flex-col gap-4">
-            <div class="bg-[#141c2e] border border-[#232f48] rounded-xl p-5 shadow-xl">
-                <div class="flex justify-between items-center mb-3">
-                    <div>
-                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-terminal text-blue-400"></i> SQL Inspector Console
-                        </h2>
-                        <p class="text-xs text-slate-400">Run queries directly against the in-memory SQLite database</p>
+        <div id="content-sql" class="tab-pane hidden flex flex-col gap-3">
+            <div class="bg-[#0b1324] border border-[#1e3a8a] rounded p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="text-xs font-bold text-[#60a5fa] uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-terminal"></i> SQL Query Inspector
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2.5 py-1 text-xs bg-[#0d1322] hover:bg-[#1e293b] text-slate-300 rounded border border-[#232f48]">Vehicles</button>
-                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2.5 py-1 text-xs bg-[#0d1322] hover:bg-[#1e293b] text-slate-300 rounded border border-[#232f48]">Customers</button>
-                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2.5 py-1 text-xs bg-[#0d1322] hover:bg-[#1e293b] text-slate-300 rounded border border-[#232f48]">Rentals</button>
+                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2 py-0.5 text-xs bg-[#080c14] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Vehicles</button>
+                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2 py-0.5 text-xs bg-[#080c14] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Customers</button>
+                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2 py-0.5 text-xs bg-[#080c14] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Rentals</button>
                     </div>
                 </div>
-                <div class="flex flex-col gap-3">
-                    <textarea id="sql-input" rows="3" class="w-full bg-[#0d1322] border border-[#232f48] rounded-lg p-3 text-xs font-mono text-emerald-400 focus:outline-none focus:border-blue-500" placeholder="Enter SQL Query (e.g. SELECT * FROM Vehicles WHERE Status = 'Available';)"></textarea>
-                    <div class="flex justify-between items-center">
-                        <span id="sql-msg" class="text-xs text-slate-400 font-mono">Ready</span>
-                        <button onclick="executeSQL()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(37,99,235,0.3)]">
-                            <i class="fa-solid fa-play"></i> Execute Query
-                        </button>
-                    </div>
+                <textarea id="sql-input" rows="3" class="w-full bg-[#080c14] border border-[#1e293b] rounded p-2.5 text-xs font-mono text-[#34d399] focus:outline-none focus:border-blue-500" placeholder="Enter SQL query..."></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <span id="sql-msg" class="text-xs text-slate-400 font-mono">Ready</span>
+                    <button onclick="executeSQL()" class="btn-og btn-og-blue">
+                        <i class="fa-solid fa-play"></i> Execute Query
+                    </button>
                 </div>
-                <div id="sql-results-container" class="mt-4 border border-[#232f48] rounded-lg overflow-x-auto max-h-80 hidden">
+                <div id="sql-results-container" class="mt-3 border border-[#1e293b] rounded overflow-x-auto max-h-64 hidden">
                     <table class="w-full text-left text-xs font-mono" id="sql-results-table"></table>
                 </div>
             </div>
-        </section>
+        </div>
 
     </div>
 
-    <!-- MODAL: CHECK-OUT -->
+    <!-- MODAL: CHECK-OUT (Trigger Demo) -->
     <div id="modal-checkout" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#141c2e] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0b1324] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-key text-emerald-400"></i> Check Out Vehicle
             </h3>
             <p class="text-xs text-slate-400 mb-4">Database Trigger <code class="text-emerald-400 font-mono">trg_after_booking_insert</code> will automatically flip vehicle status to <b class="text-amber-400">Rented</b>.</p>
             <div class="flex flex-col gap-3">
                 <div>
-                    <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
-                    <input type="text" id="co-veh-num" readonly class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-slate-300 font-mono mt-1">
+                    <label class="text-xs font-semibold text-slate-300">Vehicle Number (Primary Key)</label>
+                    <input type="text" id="co-veh-num" readonly class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Select Customer</label>
-                    <select id="co-cust-select" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1"></select>
+                    <select id="co-cust-select" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1"></select>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-checkout')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmCheckout()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs shadow-[0_0_10px_rgba(16,185,129,0.3)]">Confirm Booking</button>
+                    <button onclick="closeModal('modal-checkout')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
+                    <button onclick="confirmCheckout()" class="btn-og btn-og-green">Confirm Booking</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: RETURN & FUEL AUDIT -->
+    <!-- MODAL: RETURN (Stored Procedure Demo) -->
     <div id="modal-return" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#141c2e] border border-[#059669] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0b1324] border border-[#059669] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-rotate-left text-blue-400"></i> Return Vehicle & Fuel Audit
             </h3>
@@ -389,7 +442,7 @@
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
-                    <input type="text" id="ret-veh-num" readonly class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-slate-300 font-mono mt-1">
+                    <input type="text" id="ret-veh-num" readonly class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <div class="flex justify-between items-center">
@@ -403,8 +456,8 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-return')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmReturn()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs shadow-[0_0_10px_rgba(37,99,235,0.3)]">Complete Return</button>
+                    <button onclick="closeModal('modal-return')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
+                    <button onclick="confirmReturn()" class="btn-og btn-og-blue">Complete Return</button>
                 </div>
             </div>
         </div>
@@ -412,23 +465,23 @@
 
     <!-- MODAL: ADD VEHICLE -->
     <div id="modal-add-veh" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#141c2e] border border-[#7c3aed] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0b1324] border border-[#7c3aed] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-car text-purple-400"></i> Add New Vehicle
             </h3>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs text-slate-300">Vehicle Number (Primary Key)</label>
-                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white font-mono mt-1">
+                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Model Name</label>
-                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4 Hard Top Diesel" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
+                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4 Hard Top Diesel" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-300">Type</label>
-                        <select id="add-v-type" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
+                        <select id="add-v-type" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                             <option>Car</option>
                             <option>Bike</option>
                             <option>Scooter</option>
@@ -436,12 +489,12 @@
                     </div>
                     <div>
                         <label class="text-xs text-slate-300">Daily Rate (₹)</label>
-                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
+                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmAddVehicle()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded text-xs shadow-[0_0_10px_rgba(124,58,237,0.3)]">Add Vehicle</button>
+                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
+                    <button onclick="confirmAddVehicle()" class="btn-og btn-og-purple">Add Vehicle</button>
                 </div>
             </div>
         </div>
@@ -449,35 +502,35 @@
 
     <!-- MODAL: ADD CUSTOMER -->
     <div id="modal-add-cust" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#141c2e] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0b1324] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-user-plus text-blue-400"></i> Register Customer
             </h3>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs text-slate-300">Full Name</label>
-                    <input type="text" id="add-c-name" placeholder="e.g. Rajesh Kumar" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
+                    <input type="text" id="add-c-name" placeholder="e.g. Rajesh Kumar" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Driving License Number</label>
-                    <input type="text" id="add-c-dl" placeholder="e.g. DL-TN-01-2023-0004123" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white font-mono mt-1">
+                    <input type="text" id="add-c-dl" placeholder="e.g. DL-TN-01-2023-0004123" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Phone Number</label>
-                    <input type="text" id="add-c-phone" placeholder="e.g. +91 9876543210" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
+                    <input type="text" id="add-c-phone" placeholder="e.g. +91 9876543210" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-2 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmAddCustomer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs">Register</button>
+                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
+                    <button onclick="confirmAddCustomer()" class="btn-og btn-og-blue">Register</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT: SQLITE WASM & APP ENGINE -->
+    <!-- JAVASCRIPT: SQLITE WASM ENGINE -->
     <script>
         let db = null;
-        let selectedVehicleNumber = null;
+        let selectedVehicleNumber = "KA 05 GH 3900"; // Default selected row as in screenshot
 
         async function initDB() {
             try {
@@ -529,7 +582,7 @@
                 );
             `);
 
-            // Seed Exact Vehicles from OG
+            // Seed Exact Vehicles from Screenshot
             db.run(`
                 INSERT INTO Vehicles (Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level) VALUES
                 ('KA 05 GH 3900', 'KTM Duke 390 Gen-3', 'Bike', 1500.00, 'Available', 13.80),
@@ -577,9 +630,9 @@
             selectedVehicleNumber = vNum;
             document.querySelectorAll('#fleet-tbody tr').forEach(r => {
                 if (r.getAttribute('data-veh') === vNum) {
-                    r.classList.add('selected-row');
+                    r.className = 'selected-row cursor-pointer transition';
                 } else {
-                    r.classList.remove('selected-row');
+                    r.className = 'normal-row cursor-pointer transition';
                 }
             });
         }
@@ -597,33 +650,33 @@
             tbody.innerHTML = '';
 
             if (!res.length || !res[0].values.length) {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500">No vehicles match the filter</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500">No vehicles found</td></tr>';
                 return;
             }
 
-            res[0].values.forEach((row, idx) => {
+            res[0].values.forEach(row => {
                 const [num, model, type, rate, status, fuel] = row;
                 const isAvail = status === 'Available';
                 const statusBadge = isAvail
-                    ? `<span class="inline-flex items-center gap-1.5 text-emerald-400 font-semibold"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>Available</span>`
-                    : `<span class="inline-flex items-center gap-1.5 text-amber-400 font-semibold"><span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>Rented</span>`;
+                    ? `<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-emerald-400 bg-emerald-400 status-radio"></span>Available</span>`
+                    : `<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-amber-400 bg-amber-400 status-radio"></span>Rented</span>`;
 
                 const quickAction = isAvail
-                    ? `<span class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Rent</span>`
-                    : `<span class="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Return</span>`;
+                    ? `<span class="quick-action-text flex items-center gap-1 text-[#60a5fa]"><i class="fa-regular fa-hand-point-right"></i> Double Click to Rent</span>`
+                    : `<span class="quick-action-text flex items-center gap-1 text-[#fbbf24]"><i class="fa-regular fa-hand-point-right"></i> Double Click to Return</span>`;
 
                 const isSelected = selectedVehicleNumber === num;
-                const rowClass = isSelected ? 'selected-row' : (idx % 2 === 0 ? 'bg-[#0d1322]' : 'bg-[#101828]');
+                const rowClass = isSelected ? 'selected-row' : 'normal-row';
 
                 tbody.innerHTML += `
-                    <tr data-veh="${num}" onclick="selectVehicleRow('${num}')" ondblclick="handleRowDblClick('${num}', '${status}')" class="${rowClass} hover:bg-[#1e293b] cursor-pointer transition">
-                        <td class="py-3 px-4 font-mono font-bold">${num}</td>
-                        <td class="py-3 px-4 text-slate-200">${model}</td>
-                        <td class="py-3 px-4 text-slate-300">${type}</td>
-                        <td class="py-3 px-4 text-slate-200">₹${Number(rate).toFixed(2)}</td>
-                        <td class="py-3 px-4 font-mono">${Number(fuel).toFixed(1)}%</td>
-                        <td class="py-3 px-4">${statusBadge}</td>
-                        <td class="py-3 px-4">${quickAction}</td>
+                    <tr data-veh="${num}" class="${rowClass} cursor-pointer transition" onclick="selectVehicleRow('${num}')" ondblclick="handleRowDblClick('${num}', '${status}')">
+                        <td class="font-mono">${num}</td>
+                        <td>${model}</td>
+                        <td>${type}</td>
+                        <td>₹${Number(rate).toFixed(2)}</td>
+                        <td class="font-mono">${Number(fuel).toFixed(1)}%</td>
+                        <td>${statusBadge}</td>
+                        <td>${quickAction}</td>
                     </tr>
                 `;
             });
@@ -649,16 +702,16 @@
                     ? `<span class="px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">${activeCount} Active</span>`
                     : `<span class="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-400">0 Active</span>`;
 
-                const delBtn = `<button onclick="deleteCustomer(${id})" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs rounded transition"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
+                const delBtn = `<button onclick="deleteCustomer(${id})" class="btn-og btn-og-rose text-[11px]"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-[#1e293b]">
-                        <td class="py-3 px-4 font-mono text-slate-400 font-bold">#${id}</td>
-                        <td class="py-3 px-4 text-white font-semibold">${name}</td>
-                        <td class="py-3 px-4 font-mono text-slate-300">${dl}</td>
-                        <td class="py-3 px-4 text-slate-400">${phone}</td>
-                        <td class="py-3 px-4">${countBadge}</td>
-                        <td class="py-3 px-4 text-right">${delBtn}</td>
+                    <tr class="normal-row">
+                        <td class="font-mono">#${id}</td>
+                        <td class="text-white font-semibold">${name}</td>
+                        <td class="font-mono">${dl}</td>
+                        <td>${phone}</td>
+                        <td>${countBadge}</td>
+                        <td class="text-right">${delBtn}</td>
                     </tr>
                 `;
             });
@@ -685,23 +738,25 @@
                     : `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Completed</span>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-[#1e293b]">
-                        <td class="py-3 px-4 font-mono text-slate-400 font-bold">#${id}</td>
-                        <td class="py-3 px-4 font-mono text-white font-bold">${vNum}</td>
-                        <td class="py-3 px-4 text-slate-200 font-medium">${cName}</td>
-                        <td class="py-3 px-4 text-slate-400 text-xs">${rDate}</td>
-                        <td class="py-3 px-4 text-slate-400 text-xs">${retDate || '--'}</td>
-                        <td class="py-3 px-4 font-mono text-slate-300">${fuel !== null ? Number(fuel).toFixed(1) + '%' : '--'}</td>
-                        <td class="py-3 px-4 text-amber-400 font-mono">₹${Number(penalty).toFixed(2)}</td>
-                        <td class="py-3 px-4 text-emerald-400 font-mono font-bold">₹${Number(total).toFixed(2)}</td>
-                        <td class="py-3 px-4">${statusBadge}</td>
+                    <tr class="normal-row">
+                        <td class="font-mono font-bold">#${id}</td>
+                        <td class="font-mono text-white font-bold">${vNum}</td>
+                        <td class="text-slate-200">${cName}</td>
+                        <td class="text-xs">${rDate}</td>
+                        <td class="text-xs">${retDate || '--'}</td>
+                        <td class="font-mono">${fuel !== null ? Number(fuel).toFixed(1) + '%' : '--'}</td>
+                        <td class="text-amber-400 font-mono">₹${Number(penalty).toFixed(2)}</td>
+                        <td class="text-emerald-400 font-mono font-bold">₹${Number(total).toFixed(2)}</td>
+                        <td>${statusBadge}</td>
                     </tr>
                 `;
             });
         }
 
-        // ACTION BUTTON HANDLERS
+        // DOUBLE CLICK & ACTION HANDLERS
         function handleRowDblClick(vNum, status) {
+            selectedVehicleNumber = vNum;
+            selectVehicleRow(vNum);
             if (status === 'Available') {
                 startCheckout(vNum);
             } else {
@@ -775,6 +830,7 @@
 
             closeModal('modal-checkout');
             renderAll();
+            selectVehicleRow(vNum);
         }
 
         function startReturn(vNum) {
@@ -828,6 +884,7 @@
 
             closeModal('modal-return');
             renderAll();
+            selectVehicleRow(vNum);
         }
 
         function deleteVehicle(vNum) {
@@ -873,6 +930,7 @@
             try {
                 db.run(`INSERT INTO Vehicles (Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level) VALUES ('${num}', '${model}', '${type}', ${rate}, 'Available', 100.00);`);
                 closeModal('modal-add-veh');
+                selectedVehicleNumber = num;
                 renderAll();
             } catch (err) {
                 alert("Database Constraint Error: " + err.message);
@@ -917,22 +975,22 @@
 
                 if (!res.length) {
                     msg.innerText = "Query executed successfully (0 rows returned / DDL executed)";
-                    msg.className = "text-xs text-emerald-400 font-mono";
+                    msg.className = "text-xs text-[#34d399] font-mono";
                     table.innerHTML = '<tr><td class="p-3 text-slate-400">Statement executed successfully.</td></tr>';
                     renderAll();
                     return;
                 }
 
                 msg.innerText = `${res[0].values.length} row(s) returned`;
-                msg.className = "text-xs text-emerald-400 font-mono";
+                msg.className = "text-xs text-[#34d399] font-mono";
 
-                let html = '<thead class="bg-[#141c2e] border-b border-[#232f48] text-slate-300"><tr>';
-                res[0].columns.forEach(col => html += `<th class="p-2 border border-[#232f48]">${col}</th>`);
+                let html = '<thead class="bg-[#0b1324] border-b border-[#1e293b] text-slate-300"><tr>';
+                res[0].columns.forEach(col => html += `<th class="p-2 border border-[#1e293b]">${col}</th>`);
                 html += '</tr></thead><tbody>';
 
                 res[0].values.forEach(row => {
-                    html += '<tr class="hover:bg-[#1e293b] border-b border-[#141c2e]">';
-                    row.forEach(val => html += `<td class="p-2 text-slate-300 border border-[#232f48]">${val !== null ? val : 'NULL'}</td>`);
+                    html += '<tr class="hover:bg-[#1e293b] border-b border-[#0b1324]">';
+                    row.forEach(val => html += `<td class="p-2 text-slate-300 border border-[#1e293b]">${val !== null ? val : 'NULL'}</td>`);
                     html += '</tr>';
                 });
                 html += '</tbody>';
@@ -947,7 +1005,7 @@
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
 
             document.getElementById(`content-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-${tab}`).classList.add('active');

@@ -12,56 +12,95 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
     <style>
+        /* Exact Colors extracted from Screenshot */
+        :root {
+            --bg-window: #070b13;
+            --bg-card: #0d1527;
+            --border-blue: #2563eb;
+            --border-green: #059669;
+            --border-rose: #be123c;
+            --border-amber: #d97706;
+            --accent-cyan: #38bdf8;
+            --text-table-green: #34d399;
+        }
+
         body {
-            background-color: #080c14;
+            background-color: var(--bg-window);
             color: #f8fafc;
             font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             margin: 0;
-            padding: 16px 24px;
+            padding: 16px 22px;
             user-select: none;
             overflow-x: hidden;
         }
 
-        /* 1:1 Stat Cards */
-        .stat-card {
+        /* 1:1 Stat Cards Layout: Icon on Left, Text + Number on Right */
+        .og-stat-card {
             border-radius: 12px;
-            padding: 14px 18px;
+            padding: 12px 18px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            position: relative;
+            gap: 14px;
+            background: #0d1527;
         }
-        .stat-card-blue {
-            background: #0e1b2f;
-            border: 1px solid #1d4ed8;
-            box-shadow: 0 0 15px rgba(29, 78, 216, 0.25);
+        .card-glow-blue {
+            border: 1.5px solid #2563eb;
+            box-shadow: 0 0 16px rgba(37, 99, 235, 0.35);
         }
-        .stat-card-emerald {
-            background: #0d2320;
-            border: 1px solid #059669;
-            box-shadow: 0 0 15px rgba(5, 150, 105, 0.25);
+        .card-glow-emerald {
+            border: 1.5px solid #059669;
+            box-shadow: 0 0 16px rgba(5, 150, 105, 0.35);
         }
-        .stat-card-rose {
-            background: #27101b;
-            border: 1px solid #be123c;
-            box-shadow: 0 0 15px rgba(190, 18, 60, 0.25);
+        .card-glow-rose {
+            border: 1.5px solid #e11d48;
+            box-shadow: 0 0 16px rgba(225, 29, 72, 0.35);
         }
-        .stat-card-amber {
-            background: #251b0d;
-            border: 1px solid #b45309;
-            box-shadow: 0 0 15px rgba(180, 83, 9, 0.25);
+        .card-glow-amber {
+            border: 1.5px solid #d97706;
+            box-shadow: 0 0 16px rgba(217, 119, 6, 0.35);
         }
 
-        /* Capsule Segmented Tab Bar */
-        .tab-bar-container {
-            background: #111827;
-            border: 1px solid #1f2937;
+        .icon-circle {
+            width: 42px;
+            height: 42px;
             border-radius: 9999px;
-            padding: 3px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .icon-circle-blue {
+            background: rgba(37, 99, 235, 0.2);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+        }
+        .icon-circle-emerald {
+            background: rgba(5, 150, 105, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+        }
+        .icon-circle-rose {
+            background: rgba(225, 29, 72, 0.2);
+            color: #fb7185;
+            border: 1px solid rgba(251, 113, 133, 0.4);
+        }
+        .icon-circle-amber {
+            background: rgba(217, 119, 6, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        /* 1:1 Capsule Tab Bar */
+        .og-tab-bar {
+            background: #0d1527;
+            border: 1px solid #1e293b;
+            border-radius: 9999px;
+            padding: 4px;
             display: inline-flex;
             gap: 4px;
         }
-        .tab-pill {
+        .og-tab-item {
             padding: 6px 18px;
             border-radius: 9999px;
             font-size: 13px;
@@ -73,15 +112,15 @@
             align-items: center;
             gap: 8px;
         }
-        .tab-pill.active {
-            background: #1e293b;
+        .og-tab-item.active {
+            background: linear-gradient(135deg, #1e293b, #1e3a8a);
             color: #ffffff;
             border: 1px solid #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
         }
 
-        /* Action Buttons */
-        .btn-og {
+        /* 1:1 Action Buttons */
+        .og-btn {
             border-radius: 8px;
             padding: 6px 14px;
             font-size: 12px;
@@ -92,47 +131,52 @@
             transition: all 0.15s ease;
             cursor: pointer;
         }
-        .btn-og-green {
-            background: #09261f;
+        .og-btn-green {
+            background: #08241e;
             border: 1px solid #059669;
             color: #34d399;
+            box-shadow: 0 0 10px rgba(5, 150, 105, 0.25);
         }
-        .btn-og-green:hover { background: #0e3e33; color: #6ee7b7; }
+        .og-btn-green:hover { background: #0c362d; color: #6ee7b7; }
 
-        .btn-og-blue {
-            background: #0e1e38;
+        .og-btn-blue {
+            background: #0a1b38;
             border: 1px solid #2563eb;
             color: #60a5fa;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.25);
         }
-        .btn-og-blue:hover { background: #17325c; color: #93c5fd; }
+        .og-btn-blue:hover { background: #122b59; color: #93c5fd; }
 
-        .btn-og-purple {
-            background: #24113d;
+        .og-btn-purple {
+            background: #200f38;
             border: 1px solid #7c3aed;
             color: #c084fc;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.25);
         }
-        .btn-og-purple:hover { background: #371a5e; color: #e9d5ff; }
+        .og-btn-purple:hover { background: #321657; color: #e9d5ff; }
 
-        .btn-og-rose {
-            background: #33101c;
+        .og-btn-rose {
+            background: #2e0d19;
             border: 1px solid #e11d48;
             color: #fb7185;
+            box-shadow: 0 0 10px rgba(225, 29, 72, 0.25);
         }
-        .btn-og-rose:hover { background: #4e182a; color: #fecdd3; }
+        .og-btn-rose:hover { background: #471427; color: #fecdd3; }
 
-        .btn-og-slate {
-            background: #182234;
+        .og-btn-slate {
+            background: #111a2e;
             border: 1px solid #334155;
             color: #cbd5e1;
         }
-        .btn-og-slate:hover { background: #26354f; color: #ffffff; }
+        .og-btn-slate:hover { background: #1c2a47; color: #ffffff; }
 
-        /* Table Styling (Exact Match to Desktop Treeview) */
-        .table-container {
-            background: #080c14;
-            border: 1.5px solid #1e3a8a;
+        /* 1:1 Table Styling */
+        .og-table-wrapper {
+            background: #070b13;
+            border: 1.5px solid #2563eb;
             border-radius: 4px;
             overflow-x: auto;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);
         }
         table.og-table {
             width: 100%;
@@ -140,11 +184,11 @@
             font-size: 12px;
         }
         table.og-table th {
-            background: #0b1324;
-            color: #60a5fa;
+            background: #091224;
+            color: #38bdf8;
             font-weight: 600;
             padding: 9px 14px;
-            border-bottom: 1.5px solid #1e3a8a;
+            border-bottom: 1.5px solid #2563eb;
             text-align: left;
             white-space: nowrap;
         }
@@ -154,16 +198,16 @@
             white-space: nowrap;
         }
 
-        /* Non-Selected Row Colors (Greenish Text on Dark) */
+        /* Non-Selected Rows: Vibrant Emerald Green text */
         table.og-table tr.normal-row td {
             color: #34d399;
-            background: #080c14;
+            background: #070b13;
         }
         table.og-table tr.normal-row:hover td {
-            background: #0f1c33;
+            background: #0e172a;
         }
 
-        /* Selected Row Highlight (Vivid Electric Blue with White Text) */
+        /* Selected Row Highlight: Vivid Electric Blue with Crisp White Text */
         table.og-table tr.selected-row td {
             background-color: #2563eb !important;
             color: #ffffff !important;
@@ -172,14 +216,31 @@
         table.og-table tr.selected-row .quick-action-text {
             color: #ffffff !important;
         }
-        table.og-table tr.selected-row .status-radio {
+        table.og-table tr.selected-row .status-circle {
             border-color: #ffffff !important;
             background-color: #ffffff !important;
         }
 
-        /* Scrollbars */
+        /* Status circle */
+        .status-circle {
+            width: 10px;
+            height: 10px;
+            border-radius: 9999px;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-circle-green {
+            background-color: #10b981;
+            border: 1px solid #34d399;
+        }
+        .status-circle-amber {
+            background-color: #f59e0b;
+            border: 1px solid #fbbf24;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #080c14; }
+        ::-webkit-scrollbar-track { background: #070b13; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; border: 1px solid #334155; }
     </style>
 </head>
@@ -187,7 +248,7 @@
 
     <div class="max-w-[1400px] w-full mx-auto flex flex-col gap-4">
 
-        <!-- 1. HEADER (Exact match to Window) -->
+        <!-- 1. WINDOW HEADER -->
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-[#38bdf8] flex items-center gap-2">
@@ -197,80 +258,72 @@
                     High-Contrast Obsidian UI &bull; Car Rental & Bike-Share Database Ledger
                 </p>
             </div>
-            <div class="flex items-center gap-2 bg-[#09261f] border border-[#059669] text-[#34d399] px-4 py-1.5 rounded-full text-xs font-semibold shadow-[0_0_10px_rgba(5,150,105,0.3)]">
+            <div class="flex items-center gap-2 bg-[#08241e] border border-[#059669] text-[#34d399] px-4 py-1.5 rounded-full text-xs font-semibold shadow-[0_0_10px_rgba(5,150,105,0.35)]">
                 <span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
                 System Active & Ready
             </div>
         </div>
 
-        <!-- 2. FOUR GLOWING METRIC CARDS -->
+        <!-- 2. FOUR GLOWING METRIC CARDS (Icon on left, value on right) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <!-- TOTAL FLEET -->
-            <div class="stat-card stat-card-blue">
-                <div>
-                    <div class="text-[#60a5fa] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
-                        <i class="fa-solid fa-car"></i> TOTAL FLEET
-                    </div>
-                    <div id="stat-total" class="text-2xl md:text-3xl font-bold text-white mt-1">7</div>
+            <div class="og-stat-card card-glow-blue">
+                <div class="icon-circle icon-circle-blue">
+                    <i class="fa-solid fa-car"></i>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-blue-500/20 text-[#38bdf8] flex items-center justify-center text-base border border-blue-400/30">
-                    <i class="fa-solid fa-car-side"></i>
+                <div>
+                    <div class="text-[#93c5fd] text-[11px] font-bold tracking-wider uppercase">TOTAL FLEET</div>
+                    <div id="stat-total" class="text-2xl font-bold text-white mt-0.5">7</div>
                 </div>
             </div>
 
             <!-- AVAILABLE -->
-            <div class="stat-card stat-card-emerald">
-                <div>
-                    <div class="text-[#34d399] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-dot"></i> AVAILABLE
-                    </div>
-                    <div id="stat-avail" class="text-2xl md:text-3xl font-bold text-white mt-1">7</div>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-[#34d399] flex items-center justify-center text-base border border-emerald-400/30">
+            <div class="og-stat-card card-glow-emerald">
+                <div class="icon-circle icon-circle-emerald">
                     <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <div class="text-[#6ee7b7] text-[11px] font-bold tracking-wider uppercase">AVAILABLE</div>
+                    <div id="stat-avail" class="text-2xl font-bold text-white mt-0.5">7</div>
                 </div>
             </div>
 
             <!-- RENTED OUT -->
-            <div class="stat-card stat-card-rose">
-                <div>
-                    <div class="text-[#fb7185] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-notch"></i> RENTED OUT
-                    </div>
-                    <div id="stat-rented" class="text-2xl md:text-3xl font-bold text-white mt-1">0</div>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-rose-500/20 text-[#fb7185] flex items-center justify-center text-base border border-rose-400/30">
+            <div class="og-stat-card card-glow-rose">
+                <div class="icon-circle icon-circle-rose">
                     <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <div class="text-[#fda4af] text-[11px] font-bold tracking-wider uppercase">RENTED OUT</div>
+                    <div id="stat-rented" class="text-2xl font-bold text-white mt-0.5">0</div>
                 </div>
             </div>
 
             <!-- TOTAL REVENUE -->
-            <div class="stat-card stat-card-amber">
-                <div>
-                    <div class="text-[#fbbf24] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5">
-                        <i class="fa-solid fa-coins"></i> TOTAL REVENUE
-                    </div>
-                    <div id="stat-revenue" class="text-2xl md:text-3xl font-bold text-white mt-1">₹30,900.00</div>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-amber-500/20 text-[#fbbf24] flex items-center justify-center text-base border border-amber-400/30">
+            <div class="og-stat-card card-glow-amber">
+                <div class="icon-circle icon-circle-amber">
                     <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+                <div>
+                    <div class="text-[#fde68a] text-[11px] font-bold tracking-wider uppercase">TOTAL REVENUE</div>
+                    <div id="stat-revenue" class="text-2xl font-bold text-white mt-0.5">₹30,900.00</div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. TAB CAPSULE BAR -->
+        <!-- 3. CAPSULE TAB BAR -->
         <div>
-            <div class="tab-bar-container">
-                <div onclick="switchTab('fleet')" id="tab-fleet" class="tab-pill active">
+            <div class="og-tab-bar">
+                <div onclick="switchTab('fleet')" id="tab-fleet" class="og-tab-item active">
                     <i class="fa-solid fa-car"></i> Fleet Status
                 </div>
-                <div onclick="switchTab('ledger')" id="tab-ledger" class="tab-pill">
+                <div onclick="switchTab('ledger')" id="tab-ledger" class="og-tab-item">
                     <i class="fa-solid fa-receipt"></i> Rental Ledger
                 </div>
-                <div onclick="switchTab('customers')" id="tab-customers" class="tab-pill">
+                <div onclick="switchTab('customers')" id="tab-customers" class="og-tab-item">
                     <i class="fa-solid fa-user"></i> Customers
                 </div>
-                <div onclick="switchTab('sql')" id="tab-sql" class="tab-pill">
+                <div onclick="switchTab('sql')" id="tab-sql" class="og-tab-item">
                     <i class="fa-solid fa-graduation-cap"></i> SQL Inspector
                 </div>
             </div>
@@ -280,7 +333,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
             <div class="flex items-center gap-2 text-xs">
                 <span class="text-slate-300 font-semibold">Filter Status:</span>
-                <select id="filter-status" onchange="renderFleet()" class="bg-[#0b1324] border border-[#1e293b] rounded px-3 py-1 text-xs text-white focus:outline-none focus:border-blue-500">
+                <select id="filter-status" onchange="renderFleet()" class="bg-[#0d1527] border border-[#1e293b] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
                     <option value="All">All</option>
                     <option value="Available">Available</option>
                     <option value="Rented">Rented</option>
@@ -288,29 +341,29 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="handleCheckOutClick()" class="btn-og btn-og-green">
+                <button onclick="handleCheckOutClick()" class="og-btn og-btn-green">
                     <i class="fa-solid fa-key"></i> Check Out (Rent)
                 </button>
-                <button onclick="handleReturnClick()" class="btn-og btn-og-blue">
+                <button onclick="handleReturnClick()" class="og-btn og-btn-blue">
                     <i class="fa-solid fa-rotate-left"></i> Return (Procedure)
                 </button>
-                <button onclick="openModal('modal-add-veh')" class="btn-og btn-og-purple">
+                <button onclick="openModal('modal-add-veh')" class="og-btn og-btn-purple">
                     <i class="fa-solid fa-plus"></i> Add Vehicle
                 </button>
-                <button onclick="handleDeleteVehicleClick()" class="btn-og btn-og-rose">
+                <button onclick="handleDeleteVehicleClick()" class="og-btn og-btn-rose">
                     <i class="fa-solid fa-trash-can"></i> Delete Vehicle
                 </button>
-                <button onclick="renderAll()" class="btn-og btn-og-slate">
+                <button onclick="renderAll()" class="og-btn og-btn-slate">
                     <i class="fa-solid fa-rotate"></i> Refresh
                 </button>
             </div>
         </div>
 
-        <!-- 5. MAIN CONTENT -->
+        <!-- 5. MAIN CONTENT TABS -->
 
-        <!-- TAB 1: FLEET STATUS (Exact Treeview Replica) -->
+        <!-- TAB 1: FLEET STATUS (Exact Treeview Table) -->
         <div id="content-fleet" class="tab-pane">
-            <div class="table-container">
+            <div class="og-table-wrapper">
                 <table class="og-table" id="fleet-table">
                     <thead>
                         <tr>
@@ -332,7 +385,7 @@
 
         <!-- TAB 2: RENTAL LEDGER -->
         <div id="content-ledger" class="tab-pane hidden">
-            <div class="table-container">
+            <div class="og-table-wrapper">
                 <table class="og-table">
                     <thead>
                         <tr>
@@ -357,11 +410,11 @@
         <!-- TAB 3: CUSTOMERS -->
         <div id="content-customers" class="tab-pane hidden flex flex-col gap-3">
             <div class="flex justify-end">
-                <button onclick="openModal('modal-add-cust')" class="btn-og btn-og-purple">
+                <button onclick="openModal('modal-add-cust')" class="og-btn og-btn-purple">
                     <i class="fa-solid fa-user-plus"></i> Add Customer
                 </button>
             </div>
-            <div class="table-container">
+            <div class="og-table-wrapper">
                 <table class="og-table">
                     <thead>
                         <tr>
@@ -382,21 +435,21 @@
 
         <!-- TAB 4: SQL INSPECTOR -->
         <div id="content-sql" class="tab-pane hidden flex flex-col gap-3">
-            <div class="bg-[#0b1324] border border-[#1e3a8a] rounded p-4">
+            <div class="bg-[#0d1527] border border-[#2563eb] rounded p-4">
                 <div class="flex justify-between items-center mb-2">
-                    <div class="text-xs font-bold text-[#60a5fa] uppercase tracking-wider flex items-center gap-1.5">
+                    <div class="text-xs font-bold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-terminal"></i> SQL Query Inspector
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2 py-0.5 text-xs bg-[#080c14] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Vehicles</button>
-                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2 py-0.5 text-xs bg-[#080c14] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Customers</button>
-                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2 py-0.5 text-xs bg-[#080c14] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Rentals</button>
+                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2 py-0.5 text-xs bg-[#070b13] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Vehicles</button>
+                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2 py-0.5 text-xs bg-[#070b13] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Customers</button>
+                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2 py-0.5 text-xs bg-[#070b13] hover:bg-[#1e293b] text-slate-300 rounded border border-[#1e293b]">Rentals</button>
                     </div>
                 </div>
-                <textarea id="sql-input" rows="3" class="w-full bg-[#080c14] border border-[#1e293b] rounded p-2.5 text-xs font-mono text-[#34d399] focus:outline-none focus:border-blue-500" placeholder="Enter SQL query..."></textarea>
+                <textarea id="sql-input" rows="3" class="w-full bg-[#070b13] border border-[#1e293b] rounded p-2.5 text-xs font-mono text-[#34d399] focus:outline-none focus:border-blue-500" placeholder="Enter SQL query..."></textarea>
                 <div class="flex justify-between items-center mt-2">
                     <span id="sql-msg" class="text-xs text-slate-400 font-mono">Ready</span>
-                    <button onclick="executeSQL()" class="btn-og btn-og-blue">
+                    <button onclick="executeSQL()" class="og-btn og-btn-blue">
                         <i class="fa-solid fa-play"></i> Execute Query
                     </button>
                 </div>
@@ -410,7 +463,7 @@
 
     <!-- MODAL: CHECK-OUT (Trigger Demo) -->
     <div id="modal-checkout" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#0b1324] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0d1527] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-key text-emerald-400"></i> Check Out Vehicle
             </h3>
@@ -418,15 +471,15 @@
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Vehicle Number (Primary Key)</label>
-                    <input type="text" id="co-veh-num" readonly class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
+                    <input type="text" id="co-veh-num" readonly class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Select Customer</label>
-                    <select id="co-cust-select" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1"></select>
+                    <select id="co-cust-select" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1"></select>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-checkout')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
-                    <button onclick="confirmCheckout()" class="btn-og btn-og-green">Confirm Booking</button>
+                    <button onclick="closeModal('modal-checkout')" class="px-4 py-1.5 bg-[#1e293b] text-slate-300 rounded text-xs hover:bg-[#334155]">Cancel</button>
+                    <button onclick="confirmCheckout()" class="og-btn og-btn-green">Confirm Booking</button>
                 </div>
             </div>
         </div>
@@ -434,7 +487,7 @@
 
     <!-- MODAL: RETURN (Stored Procedure Demo) -->
     <div id="modal-return" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#0b1324] border border-[#059669] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0d1527] border border-[#059669] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-rotate-left text-blue-400"></i> Return Vehicle & Fuel Audit
             </h3>
@@ -442,7 +495,7 @@
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
-                    <input type="text" id="ret-veh-num" readonly class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
+                    <input type="text" id="ret-veh-num" readonly class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <div class="flex justify-between items-center">
@@ -456,8 +509,8 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-return')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
-                    <button onclick="confirmReturn()" class="btn-og btn-og-blue">Complete Return</button>
+                    <button onclick="closeModal('modal-return')" class="px-4 py-1.5 bg-[#1e293b] text-slate-300 rounded text-xs hover:bg-[#334155]">Cancel</button>
+                    <button onclick="confirmReturn()" class="og-btn og-btn-blue">Complete Return</button>
                 </div>
             </div>
         </div>
@@ -465,23 +518,23 @@
 
     <!-- MODAL: ADD VEHICLE -->
     <div id="modal-add-veh" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#0b1324] border border-[#7c3aed] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0d1527] border border-[#7c3aed] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-car text-purple-400"></i> Add New Vehicle
             </h3>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs text-slate-300">Vehicle Number (Primary Key)</label>
-                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
+                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Model Name</label>
-                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4 Hard Top Diesel" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
+                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4 Hard Top Diesel" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-300">Type</label>
-                        <select id="add-v-type" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
+                        <select id="add-v-type" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                             <option>Car</option>
                             <option>Bike</option>
                             <option>Scooter</option>
@@ -489,12 +542,12 @@
                     </div>
                     <div>
                         <label class="text-xs text-slate-300">Daily Rate (₹)</label>
-                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
+                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
-                    <button onclick="confirmAddVehicle()" class="btn-og btn-og-purple">Add Vehicle</button>
+                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-1.5 bg-[#1e293b] text-slate-300 rounded text-xs hover:bg-[#334155]">Cancel</button>
+                    <button onclick="confirmAddVehicle()" class="og-btn og-btn-purple">Add Vehicle</button>
                 </div>
             </div>
         </div>
@@ -502,26 +555,26 @@
 
     <!-- MODAL: ADD CUSTOMER -->
     <div id="modal-add-cust" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#0b1324] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div class="bg-[#0d1527] border border-[#2563eb] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-user-plus text-blue-400"></i> Register Customer
             </h3>
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="text-xs text-slate-300">Full Name</label>
-                    <input type="text" id="add-c-name" placeholder="e.g. Rajesh Kumar" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
+                    <input type="text" id="add-c-name" placeholder="e.g. Rajesh Kumar" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Driving License Number</label>
-                    <input type="text" id="add-c-dl" placeholder="e.g. DL-TN-01-2023-0004123" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
+                    <input type="text" id="add-c-dl" placeholder="e.g. DL-TN-01-2023-0004123" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white font-mono mt-1">
                 </div>
                 <div>
                     <label class="text-xs text-slate-300">Phone Number</label>
-                    <input type="text" id="add-c-phone" placeholder="e.g. +91 9876543210" class="w-full bg-[#080c14] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
+                    <input type="text" id="add-c-phone" placeholder="e.g. +91 9876543210" class="w-full bg-[#070b13] border border-[#1e293b] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-1.5 bg-[#182234] text-slate-300 rounded text-xs hover:bg-[#26354f]">Cancel</button>
-                    <button onclick="confirmAddCustomer()" class="btn-og btn-og-blue">Register</button>
+                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-1.5 bg-[#1e293b] text-slate-300 rounded text-xs hover:bg-[#334155]">Cancel</button>
+                    <button onclick="confirmAddCustomer()" class="og-btn og-btn-blue">Register</button>
                 </div>
             </div>
         </div>
@@ -530,7 +583,7 @@
     <!-- JAVASCRIPT: SQLITE WASM ENGINE -->
     <script>
         let db = null;
-        let selectedVehicleNumber = "KA 05 GH 3900"; // Default selected row as in screenshot
+        let selectedVehicleNumber = "KA 05 GH 3900"; // Exactly matched to screenshot
 
         async function initDB() {
             try {
@@ -657,13 +710,13 @@
             res[0].values.forEach(row => {
                 const [num, model, type, rate, status, fuel] = row;
                 const isAvail = status === 'Available';
-                const statusBadge = isAvail
-                    ? `<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-emerald-400 bg-emerald-400 status-radio"></span>Available</span>`
-                    : `<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-amber-400 bg-amber-400 status-radio"></span>Rented</span>`;
+                const statusDot = isAvail
+                    ? `<span class="status-circle status-circle-green"></span>Available`
+                    : `<span class="status-circle status-circle-amber"></span>Rented`;
 
                 const quickAction = isAvail
-                    ? `<span class="quick-action-text flex items-center gap-1 text-[#60a5fa]"><i class="fa-regular fa-hand-point-right"></i> Double Click to Rent</span>`
-                    : `<span class="quick-action-text flex items-center gap-1 text-[#fbbf24]"><i class="fa-regular fa-hand-point-right"></i> Double Click to Return</span>`;
+                    ? `<span class="quick-action-text flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Rent</span>`
+                    : `<span class="quick-action-text flex items-center gap-1"><i class="fa-regular fa-hand-point-right"></i> Double Click to Return</span>`;
 
                 const isSelected = selectedVehicleNumber === num;
                 const rowClass = isSelected ? 'selected-row' : 'normal-row';
@@ -675,7 +728,7 @@
                         <td>${type}</td>
                         <td>₹${Number(rate).toFixed(2)}</td>
                         <td class="font-mono">${Number(fuel).toFixed(1)}%</td>
-                        <td>${statusBadge}</td>
+                        <td>${statusDot}</td>
                         <td>${quickAction}</td>
                     </tr>
                 `;
@@ -702,7 +755,7 @@
                     ? `<span class="px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">${activeCount} Active</span>`
                     : `<span class="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-400">0 Active</span>`;
 
-                const delBtn = `<button onclick="deleteCustomer(${id})" class="btn-og btn-og-rose text-[11px]"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
+                const delBtn = `<button onclick="deleteCustomer(${id})" class="og-btn og-btn-rose text-[11px]"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
 
                 tbody.innerHTML += `
                     <tr class="normal-row">
@@ -984,12 +1037,12 @@
                 msg.innerText = `${res[0].values.length} row(s) returned`;
                 msg.className = "text-xs text-[#34d399] font-mono";
 
-                let html = '<thead class="bg-[#0b1324] border-b border-[#1e293b] text-slate-300"><tr>';
+                let html = '<thead class="bg-[#091224] border-b border-[#1e293b] text-slate-300"><tr>';
                 res[0].columns.forEach(col => html += `<th class="p-2 border border-[#1e293b]">${col}</th>`);
                 html += '</tr></thead><tbody>';
 
                 res[0].values.forEach(row => {
-                    html += '<tr class="hover:bg-[#1e293b] border-b border-[#0b1324]">';
+                    html += '<tr class="hover:bg-[#1e293b] border-b border-[#070b13]">';
                     row.forEach(val => html += `<td class="p-2 text-slate-300 border border-[#1e293b]">${val !== null ? val : 'NULL'}</td>`);
                     html += '</tr>';
                 });
@@ -1005,7 +1058,7 @@
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.og-tab-item').forEach(el => el.classList.remove('active'));
 
             document.getElementById(`content-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-${tab}`).classList.add('active');

@@ -154,18 +154,20 @@
             margin-top: 6px;
         }
 
-        /* 1:1 Capsule Segmented Tab Bar */
+        /* 1:1 EXACT SEGMENTED TAB BAR (Matched to media_1791135459364.png) */
         .og-tab-bar {
-            background: #141c2e;
-            border: 1px solid #232f48;
-            border-radius: 9999px;
+            background: linear-gradient(180deg, #141c2e 0%, #0c1220 100%);
+            border: 1.5px solid #232f48;
+            border-radius: 14px;
             padding: 4px;
             display: inline-flex;
-            gap: 4px;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
         }
         .og-tab-item {
-            padding: 8px 22px;
-            border-radius: 9999px;
+            padding: 8px 24px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             color: #94a3b8;
@@ -174,64 +176,136 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
+            border: 1.5px solid transparent;
+        }
+        .og-tab-item:hover {
+            color: #f1f5f9;
         }
         .og-tab-item.active {
-            background: #1e293b;
+            background: linear-gradient(180deg, #1e1b38 0%, #100e20 100%);
             color: #ffffff;
-            border: 1px solid #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+            border: 1.5px solid #6366f1;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 14px rgba(99, 102, 241, 0.5);
+            font-weight: 700;
+        }
+        /* Top 3D Bubble / Glass Sheen for Active Tab */
+        .og-tab-item.active::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            height: 44%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            pointer-events: none;
         }
 
-        /* 1:1 Rounded Action Buttons */
+        /* 1:1 EXACT 3D BUBBLE ACTION BUTTONS (Matched to media_1791135459364.png) */
         .og-btn {
             border-radius: 10px;
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 7px 18px;
+            font-size: 13px;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             transition: all 0.15s ease;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            line-height: 1.2;
+            box-sizing: border-box;
+            user-select: none;
         }
+        .og-btn::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            right: 1px;
+            height: 42%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            pointer-events: none;
+        }
+        .og-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* 1. CHECK OUT BUTTON (Emerald Bubble) */
         .og-btn-green {
-            background: #0f2d26;
-            border: 1px solid #059669;
-            color: #34d399;
-            box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
+            background: linear-gradient(180deg, #112a28 0%, #091a15 100%);
+            border: 1.5px solid #059669;
+            color: #d1fae5;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(5, 150, 105, 0.45);
         }
-        .og-btn-green:hover { background: #134e42; }
+        .og-btn-green:hover {
+            background: linear-gradient(180deg, #173836 0%, #0d2620 100%);
+            border-color: #10b981;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 18px rgba(16, 185, 129, 0.6);
+            color: #ffffff;
+        }
 
+        /* 2. RETURN (PROCEDURE) BUTTON (Ocean Blue Bubble) */
         .og-btn-blue {
-            background: #172554;
-            border: 1px solid #2563eb;
-            color: #60a5fa;
-            box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
+            background: linear-gradient(180deg, #13233c 0%, #0c1626 100%);
+            border: 1.5px solid #2563eb;
+            color: #e0f2fe;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(37, 99, 235, 0.45);
         }
-        .og-btn-blue:hover { background: #1e3a8a; }
+        .og-btn-blue:hover {
+            background: linear-gradient(180deg, #1a3154 0%, #112139 100%);
+            border-color: #38bdf8;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 18px rgba(56, 189, 248, 0.6);
+            color: #ffffff;
+        }
 
+        /* 3. ADD VEHICLE BUTTON (Indigo / Purple Bubble) */
         .og-btn-purple {
-            background: #2e1065;
-            border: 1px solid #7c3aed;
-            color: #c084fc;
-            box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+            background: linear-gradient(180deg, #1e1b38 0%, #110f22 100%);
+            border: 1.5px solid #6366f1;
+            color: #e0e7ff;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(99, 102, 241, 0.45);
         }
-        .og-btn-purple:hover { background: #3b0764; }
+        .og-btn-purple:hover {
+            background: linear-gradient(180deg, #2a264e 0%, #181530 100%);
+            border-color: #818cf8;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 18px rgba(129, 140, 248, 0.6);
+            color: #ffffff;
+        }
 
+        /* 4. DELETE VEHICLE BUTTON (Rose / Crimson Bubble) */
         .og-btn-rose {
-            background: #3f121e;
-            border: 1px solid #e11d48;
-            color: #fb7185;
-            box-shadow: 0 0 10px rgba(225, 29, 72, 0.2);
+            background: linear-gradient(180deg, #2e1520 0%, #1a0a12 100%);
+            border: 1.5px solid #e11d48;
+            color: #ffe4e6;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(225, 29, 72, 0.45);
         }
-        .og-btn-rose:hover { background: #4c0519; }
+        .og-btn-rose:hover {
+            background: linear-gradient(180deg, #401d2d 0%, #250f1a 100%);
+            border-color: #fb7185;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 18px rgba(251, 113, 133, 0.6);
+            color: #ffffff;
+        }
 
+        /* 5. REFRESH BUTTON (Slate Bubble) */
         .og-btn-slate {
-            background: #1e293b;
-            border: 1px solid #475569;
-            color: #cbd5e1;
+            background: linear-gradient(180deg, #182235 0%, #0f172a 100%);
+            border: 1.5px solid #334155;
+            color: #f8fafc;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 0 8px rgba(51, 65, 85, 0.3);
         }
-        .og-btn-slate:hover { background: #334155; }
+        .og-btn-slate:hover {
+            background: linear-gradient(180deg, #23314d 0%, #141f38 100%);
+            border-color: #64748b;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 12px rgba(100, 116, 139, 0.5);
+            color: #ffffff;
+        }
 
         /* 1:1 Table Styling (Exact Tkinter Treeview Replica) */
         .og-table-wrapper {
@@ -377,23 +451,23 @@
             </div>
         </div>
 
-        <!-- 4. TOOLBAR (Filter Status + Buttons) -->
+        <!-- 4. TOOLBAR (Filter Status + Buttons) (Matched to media_1791135459364.png) -->
         <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <div class="flex items-center gap-2 text-xs">
-                <span class="text-slate-300 font-semibold">Filter Status:</span>
-                <select id="filter-status" onchange="renderFleet()" class="bg-[#141c2e] border border-[#232f48] rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+            <div class="flex items-center gap-2.5 text-xs">
+                <span class="text-slate-300 font-bold tracking-wide">Filter Status:</span>
+                <select id="filter-status" onchange="renderFleet()" class="bg-[#1e293b] border border-[#334155] rounded-md px-3 py-1.5 text-xs text-white font-medium focus:outline-none focus:border-blue-500 cursor-pointer shadow-inner">
                     <option value="All">All</option>
                     <option value="Available">Available</option>
                     <option value="Rented">Rented</option>
                 </select>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2.5">
                 <button onclick="handleCheckOutClick()" class="og-btn og-btn-green">
-                    <i class="fa-solid fa-key"></i> Check Out (Rent)
+                    <i class="fa-solid fa-rocket"></i> Check Out (Rent)
                 </button>
                 <button onclick="handleReturnClick()" class="og-btn og-btn-blue">
-                    <i class="fa-solid fa-rotate-left"></i> Return (Procedure)
+                    <i class="fa-solid fa-arrows-rotate"></i> Return (Procedure)
                 </button>
                 <button onclick="openModal('modal-add-veh')" class="og-btn og-btn-purple">
                     <i class="fa-solid fa-plus"></i> Add Vehicle
@@ -402,7 +476,7 @@
                     <i class="fa-solid fa-trash-can"></i> Delete Vehicle
                 </button>
                 <button onclick="renderAll()" class="og-btn og-btn-slate">
-                    <i class="fa-solid fa-rotate"></i> Refresh
+                    <i class="fa-solid fa-rotate-right"></i> Refresh
                 </button>
             </div>
         </div>
@@ -526,8 +600,10 @@
                     <select id="co-cust-select" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1"></select>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-checkout')" class="px-4 py-1.5 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmCheckout()" class="og-btn og-btn-green">Confirm Booking</button>
+                    <button onclick="closeModal('modal-checkout')" class="og-btn og-btn-slate">Cancel</button>
+                    <button onclick="confirmCheckout()" class="og-btn og-btn-green">
+                        <i class="fa-solid fa-rocket"></i> Confirm Booking
+                    </button>
                 </div>
             </div>
         </div>
@@ -537,7 +613,7 @@
     <div id="modal-return" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#141c2e] border border-[#059669] rounded-xl max-w-md w-full p-6 shadow-2xl">
             <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-rotate-left text-blue-400"></i> Return Vehicle & Fuel Audit
+                <i class="fa-solid fa-arrows-rotate text-blue-400"></i> Return Vehicle & Fuel Audit
             </h3>
             <p class="text-xs text-slate-400 mb-4">Stored Procedure <code class="text-emerald-400 font-mono">ReturnVehicle</code> audits fuel & assesses ₹500 penalty if fuel &lt; 20%.</p>
             <div class="flex flex-col gap-3">
@@ -557,8 +633,10 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-return')" class="px-4 py-1.5 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmReturn()" class="og-btn og-btn-blue">Complete Return</button>
+                    <button onclick="closeModal('modal-return')" class="og-btn og-btn-slate">Cancel</button>
+                    <button onclick="confirmReturn()" class="og-btn og-btn-blue">
+                        <i class="fa-solid fa-arrows-rotate"></i> Complete Return
+                    </button>
                 </div>
             </div>
         </div>
@@ -594,8 +672,10 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-1.5 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmAddVehicle()" class="og-btn og-btn-purple">Add Vehicle</button>
+                    <button onclick="closeModal('modal-add-veh')" class="og-btn og-btn-slate">Cancel</button>
+                    <button onclick="confirmAddVehicle()" class="og-btn og-btn-purple">
+                        <i class="fa-solid fa-plus"></i> Add Vehicle
+                    </button>
                 </div>
             </div>
         </div>
@@ -621,8 +701,10 @@
                     <input type="text" id="add-c-phone" placeholder="e.g. +91 9876543210" class="w-full bg-[#0d1322] border border-[#232f48] rounded px-3 py-2 text-xs text-white mt-1">
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-1.5 bg-[#0d1322] text-slate-300 rounded text-xs hover:bg-[#1e293b]">Cancel</button>
-                    <button onclick="confirmAddCustomer()" class="og-btn og-btn-blue">Register</button>
+                    <button onclick="closeModal('modal-add-cust')" class="og-btn og-btn-slate">Cancel</button>
+                    <button onclick="confirmAddCustomer()" class="og-btn og-btn-blue">
+                        <i class="fa-solid fa-user-plus"></i> Register
+                    </button>
                 </div>
             </div>
         </div>

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoShare Ledger - Vehicle Rental & Bike-Share Database System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- sql.js (SQLite WebAssembly for in-browser relational DB execution) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        .glass-panel { background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-6 lg:p-8">
+
+    <!-- TOP HEADER & BRANDING -->
+    <header class="max-w-7xl w-full mx-auto mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
+        <div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-900/30">
+                    <i class="fa-solid fa-car-side"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                        AutoShare Ledger
+                        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-normal">SQLite WASM v3.45</span>
+                    </h1>
+                    <p class="text-slate-400 text-xs mt-0.5">Automated Check-out Triggers, Fuel Audit Stored Procedures & Relational Safety Guards</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="resetDatabase()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-rotate-left"></i> Reset Demo DB
+            </button>
+            <div class="flex items-center gap-2 bg-emerald-950/40 border border-emerald-800/40 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-mono">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                In-Memory DB Active
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl w-full mx-auto flex-1 flex flex-col gap-6">
+
+        <!-- KPI STATS OVERVIEW -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass-panel p-4 flex items-center justify-between">
+                <div>
+                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Fleet</div>
+                    <div id="stat-total" class="text-2xl font-bold text-white mt-1">--</div>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-car"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-4 flex items-center justify-between">
+                <div>
+                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Available</div>
+                    <div id="stat-avail" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-4 flex items-center justify-between">
+                <div>
+                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Rentals</div>
+                    <div id="stat-rented" class="text-2xl font-bold text-amber-400 mt-1">--</div>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+            </div>
+            <div class="glass-panel p-4 flex items-center justify-between">
+                <div>
+                    <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Revenue</div>
+                    <div id="stat-revenue" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACTION CONTROLS & NAVIGATION TABS -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('fleet')" id="tab-fleet" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white">
+                    <i class="fa-solid fa-car mr-1.5"></i> Fleet Registry
+                </button>
+                <button onclick="switchTab('customers')" id="tab-customers" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    <i class="fa-solid fa-users mr-1.5"></i> Customers
+                </button>
+                <button onclick="switchTab('ledger')" id="tab-ledger" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    <i class="fa-solid fa-receipt mr-1.5"></i> Rental Ledger
+                </button>
+                <button onclick="switchTab('sql')" id="tab-sql" class="px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    <i class="fa-solid fa-terminal mr-1.5"></i> SQL Console
+                </button>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openModal('modal-add-veh')" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus text-emerald-400"></i> Add Vehicle
+                </button>
+                <button onclick="openModal('modal-add-cust')" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-plus text-blue-400"></i> Add Customer
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: FLEET REGISTRY -->
+        <section id="content-fleet" class="tab-pane flex flex-col gap-4">
+            <div class="glass-panel overflow-hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+                    <div>
+                        <h2 class="text-base font-bold text-white">Vehicle Fleet Management</h2>
+                        <p class="text-xs text-slate-400">Registration numbers, rates, fuel levels, and real-time availability</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-mono tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Vehicle Number</th>
+                                <th class="py-3 px-4">Model Name</th>
+                                <th class="py-3 px-4">Type</th>
+                                <th class="py-3 px-4">Daily Rate</th>
+                                <th class="py-3 px-4">Fuel %</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fleet-tbody" class="divide-y divide-slate-800 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: CUSTOMERS -->
+        <section id="content-customers" class="tab-pane hidden flex flex-col gap-4">
+            <div class="glass-panel overflow-hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+                    <div>
+                        <h2 class="text-base font-bold text-white">Registered Customer Directory</h2>
+                        <p class="text-xs text-slate-400">Verification details, driving licenses, and contact records</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-mono tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">ID</th>
+                                <th class="py-3 px-4">Full Name</th>
+                                <th class="py-3 px-4">Driving License No.</th>
+                                <th class="py-3 px-4">Phone Number</th>
+                                <th class="py-3 px-4">Active Rentals</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cust-tbody" class="divide-y divide-slate-800 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: RENTAL LEDGER -->
+        <section id="content-ledger" class="tab-pane hidden flex flex-col gap-4">
+            <div class="glass-panel overflow-hidden">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+                    <div>
+                        <h2 class="text-base font-bold text-white">Rental Transaction Audit Ledger</h2>
+                        <p class="text-xs text-slate-400">Triggered checkout timestamps, return fuel audits, and penalty calculations</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950/60 text-slate-400 text-xs uppercase font-mono tracking-wider border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Rental ID</th>
+                                <th class="py-3 px-4">Vehicle</th>
+                                <th class="py-3 px-4">Customer</th>
+                                <th class="py-3 px-4">Rental Date</th>
+                                <th class="py-3 px-4">Return Date</th>
+                                <th class="py-3 px-4">Return Fuel %</th>
+                                <th class="py-3 px-4">Penalty</th>
+                                <th class="py-3 px-4">Total Amount</th>
+                                <th class="py-3 px-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-tbody" class="divide-y divide-slate-800 font-medium">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CONTENT: SQL CONSOLE -->
+        <section id="content-sql" class="tab-pane hidden flex flex-col gap-4">
+            <div class="glass-panel p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h2 class="text-base font-bold text-white">Interactive SQLite Query Console</h2>
+                        <p class="text-xs text-slate-400">Run queries directly against the in-browser WebAssembly database</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="presetQuery('SELECT * FROM Vehicles;')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Vehicles</button>
+                        <button onclick="presetQuery('SELECT * FROM Customers;')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Customers</button>
+                        <button onclick="presetQuery('SELECT * FROM Rentals ORDER BY Rental_ID DESC;')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Rentals</button>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <textarea id="sql-input" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm mono text-emerald-400 focus:outline-none focus:border-emerald-500" placeholder="Enter SQL Query (e.g. SELECT * FROM Vehicles WHERE Status = 'Available';)"></textarea>
+                    <div class="flex justify-between items-center">
+                        <span id="sql-msg" class="text-xs text-slate-400 mono">Ready</span>
+                        <button onclick="executeSQL()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-play"></i> Execute SQL
+                        </button>
+                    </div>
+                </div>
+                <div id="sql-results-container" class="mt-4 border border-slate-800 rounded-lg overflow-x-auto max-h-80 hidden">
+                    <table class="w-full text-left text-xs font-mono" id="sql-results-table"></table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-7xl w-full mx-auto mt-8 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
+        AutoShare Ledger &bull; DBMS Laboratory Project &bull; Anna University Regulation 2023
+    </footer>
+
+    <!-- MODAL: CHECK-OUT (DEMONSTRATES DATABASE TRIGGER) -->
+    <div id="modal-checkout" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full p-6 relative">
+            <h3 class="text-lg font-bold text-white mb-1">Check Out Vehicle</h3>
+            <p class="text-xs text-slate-400 mb-4">Trigger <code class="text-emerald-400">trg_after_booking_insert</code> will automatically flip vehicle status to <b class="text-amber-400">Rented</b>.</p>
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
+                    <input type="text" id="co-veh-num" readonly class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-sm text-slate-400 mono mt-1">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-300">Select Customer</label>
+                    <select id="co-cust-select" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1"></select>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="closeModal('modal-checkout')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
+                    <button onclick="confirmCheckout()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RETURN (DEMONSTRATES STORED PROCEDURE & PENALTY) -->
+    <div id="modal-return" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full p-6 relative">
+            <h3 class="text-lg font-bold text-white mb-1">Return Vehicle & Fuel Audit</h3>
+            <p class="text-xs text-slate-400 mb-4">Stored Procedure <code class="text-emerald-400">ReturnVehicle</code> checks fuel level & assesses ₹500 penalty if fuel &lt; 20%.</p>
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs font-semibold text-slate-300">Vehicle Number</label>
+                    <input type="text" id="ret-veh-num" readonly class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-sm text-slate-400 mono mt-1">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-slate-300">Returned Fuel Level (%)</label>
+                        <span id="fuel-val" class="text-xs font-bold text-emerald-400 font-mono">15%</span>
+                    </div>
+                    <input type="range" id="ret-fuel-slider" min="0" max="100" value="15" oninput="updateFuelLabel(this.value)" class="w-full accent-emerald-500 mt-2">
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                        <span class="text-red-400 font-semibold">&lt; 20% (+ ₹500 Penalty)</span>
+                        <span class="text-emerald-400">&ge; 20% (Standard)</span>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="closeModal('modal-return')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
+                    <button onclick="confirmReturn()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs">Complete Return</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD VEHICLE -->
+    <div id="modal-add-veh" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full p-6 relative">
+            <h3 class="text-lg font-bold text-white mb-3">Add New Vehicle</h3>
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs text-slate-300">Vehicle Number (Registration No.)</label>
+                    <input type="text" id="add-v-num" placeholder="e.g. TN 37 BY 0650" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mono mt-1">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300">Model Name</label>
+                    <input type="text" id="add-v-model" placeholder="e.g. Mahindra Thar 4x4" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-300">Type</label>
+                        <select id="add-v-type" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                            <option>Car</option>
+                            <option>Bike</option>
+                            <option>Scooter</option>
+                            <option>SUV</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-300">Daily Rate (₹)</label>
+                        <input type="number" id="add-v-rate" placeholder="3200" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="closeModal('modal-add-veh')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
+                    <button onclick="confirmAddVehicle()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded text-xs">Add Vehicle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD CUSTOMER -->
+    <div id="modal-add-cust" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full p-6 relative">
+            <h3 class="text-lg font-bold text-white mb-3">Register New Customer</h3>
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-xs text-slate-300">Full Name</label>
+                    <input type="text" id="add-c-name" placeholder="e.g. K. Vignesh" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300">Driving License Number</label>
+                    <input type="text" id="add-c-dl" placeholder="e.g. TN-37-2023-0099881" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mono mt-1">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300">Phone Number</label>
+                    <input type="text" id="add-c-phone" placeholder="e.g. 9840192837" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white mt-1">
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="closeModal('modal-add-cust')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded text-xs">Cancel</button>
+                    <button onclick="confirmAddCustomer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded text-xs">Register Customer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT: SQLITE WASM DATABASE ENGINE & APP LOGIC -->
+    <script>
+        let db = null;
+
+        // Initialize SQLite WebAssembly Engine
+        async function initDB() {
+            try {
+                const SQL = await initSqlJs({
+                    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+                });
+                db = new SQL.Database();
+                createSchemaAndSeed();
+                renderAll();
+            } catch (err) {
+                console.error("WASM SQLite Init Error:", err);
+            }
+        }
+
+        function createSchemaAndSeed() {
+            // Enable Foreign Keys
+            db.run("PRAGMA foreign_keys = ON;");
+
+            // DDL: Tables
+            db.run(`
+                CREATE TABLE IF NOT EXISTS Vehicles (
+                    Vehicle_Number VARCHAR(20) PRIMARY KEY,
+                    Model_Name VARCHAR(50) NOT NULL,
+                    Vehicle_Type VARCHAR(20) NOT NULL CHECK (Vehicle_Type IN ('Car', 'Bike', 'Scooter', 'SUV')),
+                    Daily_Rate DECIMAL(8,2) NOT NULL CHECK (Daily_Rate > 0),
+                    Status VARCHAR(15) NOT NULL DEFAULT 'Available' CHECK (Status IN ('Available', 'Rented', 'Maintenance')),
+                    Fuel_Level DECIMAL(5,2) NOT NULL DEFAULT 100.00 CHECK (Fuel_Level BETWEEN 0.00 AND 100.00)
+                );
+
+                CREATE TABLE IF NOT EXISTS Customers (
+                    Customer_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Full_Name VARCHAR(100) NOT NULL,
+                    Driving_License_Number VARCHAR(30) NOT NULL UNIQUE,
+                    Phone_Number VARCHAR(15) NOT NULL,
+                    Registration_Date DATE DEFAULT CURRENT_DATE
+                );
+
+                CREATE TABLE IF NOT EXISTS Rentals (
+                    Rental_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Vehicle_Number VARCHAR(20) NOT NULL,
+                    Customer_ID INTEGER NOT NULL,
+                    Rental_Date DATE NOT NULL,
+                    Return_Date DATE,
+                    Return_Fuel_Level DECIMAL(5,2),
+                    Daily_Rate_Applied DECIMAL(8,2) NOT NULL,
+                    Penalty_Fee DECIMAL(8,2) DEFAULT 0.00,
+                    Total_Amount DECIMAL(10,2) DEFAULT 0.00,
+                    Rental_Status VARCHAR(15) NOT NULL DEFAULT 'Active' CHECK (Rental_Status IN ('Active', 'Completed', 'Cancelled')),
+                    FOREIGN KEY (Vehicle_Number) REFERENCES Vehicles(Vehicle_Number),
+                    FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
+                );
+            `);
+
+            // Seed Data
+            db.run(`
+                INSERT INTO Vehicles (Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level) VALUES
+                ('TN 37 BY 0650', 'Mahindra Thar 4x4', 'SUV', 3200.00, 'Available', 100.00),
+                ('TN 01 AB 1984', 'Royal Enfield Classic 350', 'Bike', 900.00, 'Available', 95.00),
+                ('TN 38 CD 4350', 'Honda City i-VTEC', 'Car', 2100.00, 'Available', 85.00),
+                ('KL 07 EF 4444', 'Hyundai Creta SX', 'SUV', 2800.00, 'Available', 90.00),
+                ('KA 05 GH 3900', 'Ather 450X Gen 3', 'Scooter', 650.00, 'Available', 100.00),
+                ('TN 02 XY 5001', 'Maruti Suzuki Swift', 'Car', 1500.00, 'Available', 80.00),
+                ('TN 43 Z 1234', 'Yamaha MT-15 V2', 'Bike', 1100.00, 'Available', 100.00);
+
+                INSERT INTO Customers (Customer_ID, Full_Name, Driving_License_Number, Phone_Number) VALUES
+                (1, 'Arun Kumar', 'TN-37-2021-0004123', '9840192837'),
+                (2, 'Sneha Patel', 'KA-05-2020-0098765', '9884012345'),
+                (3, 'Rahul Sharma', 'DL-04-2019-1122334', '9711009988'),
+                (4, 'Gajendran', 'TN-38-2022-0055443', '9443322110');
+
+                INSERT INTO Rentals (Vehicle_Number, Customer_ID, Rental_Date, Return_Date, Return_Fuel_Level, Daily_Rate_Applied, Penalty_Fee, Total_Amount, Rental_Status) VALUES
+                ('TN 37 BY 0650', 1, '2026-09-10', '2026-09-15', 85.00, 3200.00, 0.00, 16000.00, 'Completed'),
+                ('TN 01 AB 1984', 2, '2026-09-12', '2026-09-16', 15.00, 900.00, 500.00, 4100.00, 'Completed'),
+                ('TN 38 CD 4350', 3, '2026-09-14', '2026-09-20', 90.00, 2100.00, 0.00, 12500.00, 'Completed');
+            `);
+        }
+
+        function renderAll() {
+            renderStats();
+            renderFleet();
+            renderCustomers();
+            renderLedger();
+        }
+
+        function renderStats() {
+            const totalVeh = db.exec("SELECT COUNT(*) FROM Vehicles")[0].values[0][0];
+            const availVeh = db.exec("SELECT COUNT(*) FROM Vehicles WHERE Status = 'Available'")[0].values[0][0];
+            const rentedVeh = db.exec("SELECT COUNT(*) FROM Vehicles WHERE Status = 'Rented'")[0].values[0][0];
+            const revRes = db.exec("SELECT SUM(Total_Amount) FROM Rentals WHERE Rental_Status = 'Completed'");
+            const totalRev = revRes[0].values[0][0] || 0;
+
+            document.getElementById('stat-total').innerText = totalVeh;
+            document.getElementById('stat-avail').innerText = availVeh;
+            document.getElementById('stat-rented').innerText = rentedVeh;
+            document.getElementById('stat-revenue').innerText = `₹${Number(totalRev).toLocaleString('en-IN')}`;
+        }
+
+        function renderFleet() {
+            const res = db.exec("SELECT Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level FROM Vehicles ORDER BY Status ASC, Vehicle_Number ASC");
+            const tbody = document.getElementById('fleet-tbody');
+            tbody.innerHTML = '';
+
+            if (!res.length || !res[0].values.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500">No vehicles registered</td></tr>';
+                return;
+            }
+
+            res[0].values.forEach(row => {
+                const [num, model, type, rate, status, fuel] = row;
+                const isAvail = status === 'Available';
+                const statusBadge = isAvail
+                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Available</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Rented</span>`;
+
+                const actionBtn = isAvail
+                    ? `<button onclick="startCheckout('${num}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded mr-1">Check Out</button>`
+                    : `<button onclick="startReturn('${num}')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded mr-1">Return</button>`;
+
+                const delBtn = `<button onclick="deleteVehicle('${num}')" class="px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs rounded"><i class="fa-solid fa-trash-can"></i></button>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="py-3 px-4 mono text-white font-bold">${num}</td>
+                        <td class="py-3 px-4 text-slate-200">${model}</td>
+                        <td class="py-3 px-4 text-slate-400">${type}</td>
+                        <td class="py-3 px-4 text-slate-200">₹${rate}</td>
+                        <td class="py-3 px-4 text-slate-300 font-mono">${fuel}%</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-right">${actionBtn}${delBtn}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderCustomers() {
+            const res = db.exec(`
+                SELECT c.Customer_ID, c.Full_Name, c.Driving_License_Number, c.Phone_Number,
+                       (SELECT COUNT(*) FROM Rentals r WHERE r.Customer_ID = c.Customer_ID AND r.Rental_Status = 'Active') as ActiveRentals
+                FROM Customers c ORDER BY c.Customer_ID ASC
+            `);
+            const tbody = document.getElementById('cust-tbody');
+            tbody.innerHTML = '';
+
+            if (!res.length || !res[0].values.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No customers registered</td></tr>';
+                return;
+            }
+
+            res[0].values.forEach(row => {
+                const [id, name, dl, phone, activeCount] = row;
+                const countBadge = activeCount > 0
+                    ? `<span class="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">${activeCount} Active</span>`
+                    : `<span class="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-400">0 Active</span>`;
+
+                const delBtn = `<button onclick="deleteCustomer(${id})" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs rounded"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="py-3 px-4 mono text-slate-400 font-bold">#${id}</td>
+                        <td class="py-3 px-4 text-white font-semibold">${name}</td>
+                        <td class="py-3 px-4 mono text-slate-300">${dl}</td>
+                        <td class="py-3 px-4 text-slate-400">${phone}</td>
+                        <td class="py-3 px-4">${countBadge}</td>
+                        <td class="py-3 px-4 text-right">${delBtn}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderLedger() {
+            const res = db.exec(`
+                SELECT r.Rental_ID, r.Vehicle_Number, c.Full_Name, r.Rental_Date, r.Return_Date, r.Return_Fuel_Level, r.Penalty_Fee, r.Total_Amount, r.Rental_Status
+                FROM Rentals r JOIN Customers c ON r.Customer_ID = c.Customer_ID
+                ORDER BY r.Rental_ID DESC
+            `);
+            const tbody = document.getElementById('ledger-tbody');
+            tbody.innerHTML = '';
+
+            if (!res.length || !res[0].values.length) {
+                tbody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-slate-500">No rental history records</td></tr>';
+                return;
+            }
+
+            res[0].values.forEach(row => {
+                const [id, vNum, cName, rDate, retDate, fuel, penalty, total, status] = row;
+                const statusBadge = status === 'Active'
+                    ? `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Active</span>`
+                    : `<span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completed</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="py-3 px-4 mono text-slate-400 font-bold">#${id}</td>
+                        <td class="py-3 px-4 mono text-white">${vNum}</td>
+                        <td class="py-3 px-4 text-slate-200">${cName}</td>
+                        <td class="py-3 px-4 text-slate-400 text-xs">${rDate}</td>
+                        <td class="py-3 px-4 text-slate-400 text-xs">${retDate || '--'}</td>
+                        <td class="py-3 px-4 mono text-slate-300">${fuel !== null ? fuel + '%' : '--'}</td>
+                        <td class="py-3 px-4 text-amber-400 font-mono">₹${penalty || 0}</td>
+                        <td class="py-3 px-4 text-emerald-400 font-mono font-bold">₹${total || 0}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // TRIGGER EXECUTION: CHECK OUT
+        function startCheckout(vNum) {
+            document.getElementById('co-veh-num').value = vNum;
+            const select = document.getElementById('co-cust-select');
+            select.innerHTML = '';
+
+            const res = db.exec("SELECT Customer_ID, Full_Name FROM Customers ORDER BY Full_Name ASC");
+            if (res.length && res[0].values.length) {
+                res[0].values.forEach(c => {
+                    select.innerHTML += `<option value="${c[0]}">${c[1]} (ID: ${c[0]})</option>`;
+                });
+            }
+            openModal('modal-checkout');
+        }
+
+        function confirmCheckout() {
+            const vNum = document.getElementById('co-veh-num').value;
+            const custId = parseInt(document.getElementById('co-cust-select').value);
+
+            // Fetch daily rate
+            const rateRes = db.exec(`SELECT Daily_Rate FROM Vehicles WHERE Vehicle_Number = '${vNum}'`);
+            const dailyRate = rateRes[0].values[0][0];
+
+            // 1. Insert Rental Record
+            const today = new Date().toISOString().split('T')[0];
+            db.run(`
+                INSERT INTO Rentals (Vehicle_Number, Customer_ID, Rental_Date, Daily_Rate_Applied, Rental_Status)
+                VALUES ('${vNum}', ${custId}, '${today}', ${dailyRate}, 'Active');
+            `);
+
+            // 2. Trigger Action: Flip status to Rented
+            db.run(`UPDATE Vehicles SET Status = 'Rented' WHERE Vehicle_Number = '${vNum}';`);
+
+            closeModal('modal-checkout');
+            renderAll();
+        }
+
+        // STORED PROCEDURE EXECUTION: RETURN VEHICLE & FUEL AUDIT
+        function startReturn(vNum) {
+            document.getElementById('ret-veh-num').value = vNum;
+            document.getElementById('ret-fuel-slider').value = 15;
+            updateFuelLabel(15);
+            openModal('modal-return');
+        }
+
+        function updateFuelLabel(val) {
+            const label = document.getElementById('fuel-val');
+            label.innerText = `${val}%`;
+            if (val < 20) {
+                label.className = 'text-xs font-bold text-rose-400 font-mono';
+            } else {
+                label.className = 'text-xs font-bold text-emerald-400 font-mono';
+            }
+        }
+
+        function confirmReturn() {
+            const vNum = document.getElementById('ret-veh-num').value;
+            const fuelLevel = parseFloat(document.getElementById('ret-fuel-slider').value);
+
+            // Fetch Active Rental
+            const rentalRes = db.exec(`SELECT Rental_ID, Daily_Rate_Applied FROM Rentals WHERE Vehicle_Number = '${vNum}' AND Rental_Status = 'Active'`);
+            if (!rentalRes.length || !rentalRes[0].values.length) {
+                alert("Error: No active rental record found for this vehicle.");
+                closeModal('modal-return');
+                return;
+            }
+
+            const [rentalId, dailyRate] = rentalRes[0].values[0];
+            const penaltyFee = (fuelLevel < 20.0) ? 500.00 : 0.00;
+            const totalAmount = dailyRate + penaltyFee;
+            const today = new Date().toISOString().split('T')[0];
+
+            // Stored Procedure Logic
+            db.run(`
+                UPDATE Rentals
+                SET Return_Date = '${today}',
+                    Return_Fuel_Level = ${fuelLevel},
+                    Penalty_Fee = ${penaltyFee},
+                    Total_Amount = ${totalAmount},
+                    Rental_Status = 'Completed'
+                WHERE Rental_ID = ${rentalId};
+            `);
+
+            db.run(`
+                UPDATE Vehicles
+                SET Status = 'Available', Fuel_Level = ${fuelLevel}
+                WHERE Vehicle_Number = '${vNum}';
+            `);
+
+            closeModal('modal-return');
+            renderAll();
+        }
+
+        // DELETION GUARDS
+        function deleteVehicle(vNum) {
+            const check = db.exec(`SELECT COUNT(*) FROM Rentals WHERE Vehicle_Number = '${vNum}' AND Rental_Status = 'Active'`);
+            if (check[0].values[0][0] > 0) {
+                alert(`Safety Guard Blocked Deletion:\nVehicle ${vNum} is currently active in a rental. Please return it before deleting.`);
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete vehicle ${vNum}?`)) {
+                db.run(`DELETE FROM Rentals WHERE Vehicle_Number = '${vNum}';`);
+                db.run(`DELETE FROM Vehicles WHERE Vehicle_Number = '${vNum}';`);
+                renderAll();
+            }
+        }
+
+        function deleteCustomer(custId) {
+            const check = db.exec(`SELECT COUNT(*) FROM Rentals WHERE Customer_ID = ${custId} AND Rental_Status = 'Active'`);
+            if (check[0].values[0][0] > 0) {
+                alert(`Safety Guard Blocked Deletion:\nCustomer #${custId} has ongoing active rentals. Please return all vehicles before deleting.`);
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete Customer #${custId}?`)) {
+                db.run(`DELETE FROM Rentals WHERE Customer_ID = ${custId};`);
+                db.run(`DELETE FROM Customers WHERE Customer_ID = ${custId};`);
+                renderAll();
+            }
+        }
+
+        // ADD VEHICLE
+        function confirmAddVehicle() {
+            const num = document.getElementById('add-v-num').value.trim();
+            const model = document.getElementById('add-v-model').value.trim();
+            const type = document.getElementById('add-v-type').value;
+            const rate = parseFloat(document.getElementById('add-v-rate').value);
+
+            if (!num || !model || isNaN(rate) || rate <= 0) {
+                alert("Please fill in valid vehicle registration number, model, and rate.");
+                return;
+            }
+
+            try {
+                db.run(`INSERT INTO Vehicles (Vehicle_Number, Model_Name, Vehicle_Type, Daily_Rate, Status, Fuel_Level) VALUES ('${num}', '${model}', '${type}', ${rate}, 'Available', 100.00);`);
+                closeModal('modal-add-veh');
+                renderAll();
+            } catch (err) {
+                alert("Database Error: " + err.message);
+            }
+        }
+
+        // ADD CUSTOMER
+        function confirmAddCustomer() {
+            const name = document.getElementById('add-c-name').value.trim();
+            const dl = document.getElementById('add-c-dl').value.trim();
+            const phone = document.getElementById('add-c-phone').value.trim();
+
+            if (!name || !dl || !phone) {
+                alert("Please fill in all customer details.");
+                return;
+            }
+
+            try {
+                db.run(`INSERT INTO Customers (Full_Name, Driving_License_Number, Phone_Number) VALUES ('${name}', '${dl}', '${phone}');`);
+                closeModal('modal-add-cust');
+                renderAll();
+            } catch (err) {
+                alert("Database Error (Constraint Violation): " + err.message);
+            }
+        }
+
+        // SQL CONSOLE
+        function presetQuery(q) {
+            document.getElementById('sql-input').value = q;
+            executeSQL();
+        }
+
+        function executeSQL() {
+            const sql = document.getElementById('sql-input').value.trim();
+            const table = document.getElementById('sql-results-table');
+            const container = document.getElementById('sql-results-container');
+            const msg = document.getElementById('sql-msg');
+
+            if (!sql) return;
+
+            try {
+                const res = db.exec(sql);
+                container.classList.remove('hidden');
+
+                if (!res.length) {
+                    msg.innerText = "Query executed successfully (0 rows returned / DDL executed)";
+                    msg.className = "text-xs text-emerald-400 mono";
+                    table.innerHTML = '<tr><td class="p-3 text-slate-400">Statement executed successfully.</td></tr>';
+                    renderAll();
+                    return;
+                }
+
+                msg.innerText = `${res[0].values.length} row(s) returned`;
+                msg.className = "text-xs text-emerald-400 mono";
+
+                let html = '<thead class="bg-slate-900 border-b border-slate-800 text-slate-300"><tr>';
+                res[0].columns.forEach(col => html += `<th class="p-2 border border-slate-800">${col}</th>`);
+                html += '</tr></thead><tbody>';
+
+                res[0].values.forEach(row => {
+                    html += '<tr class="hover:bg-slate-800/60 border-b border-slate-900">';
+                    row.forEach(val => html += `<td class="p-2 text-slate-300 border border-slate-800">${val !== null ? val : 'NULL'}</td>`);
+                    html += '</tr>';
+                });
+                html += '</tbody>';
+                table.innerHTML = html;
+                renderAll();
+            } catch (err) {
+                msg.innerText = "Error: " + err.message;
+                msg.className = "text-xs text-rose-400 mono";
+                container.classList.add('hidden');
+            }
+        }
+
+        // TAB SWITCHING
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.className = 'px-4 py-2 rounded-lg text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700';
+            });
+
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).className = 'px-4 py-2 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white';
+        }
+
+        // MODAL TOGGLING
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function resetDatabase() {
+            if (confirm("Reset demo database to original initial state?")) {
+                createSchemaAndSeed();
+                renderAll();
+            }
+        }
+
+        // BOOTSTRAP
+        window.addEventListener('DOMContentLoaded', initDB);
+    </script>
+</body>
+</html>
